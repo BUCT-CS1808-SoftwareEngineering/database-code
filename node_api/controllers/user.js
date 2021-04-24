@@ -1,20 +1,19 @@
 const APIError = require('../rest').APIError;
+const pool = require("../config");
 
 module.exports = {
     'GET /api/user': async (ctx, next) => {
-        ctx.rest();
+        const [rows,fields] = await pool.execute(`selet * from \`user table\``);
+        ctx.rest({...rows});
     },
 
     'POST /api/user': async (ctx, next) => {
         ctx.rest();
     },
-
-    'DELETE /api/user/:id': async (ctx, next) => {
-        console.log(`delete product ${ctx.params.id}...`);
-        if (p) {
-            ctx.rest();
-        } else {
-            throw new APIError('product:not_found', 'product not found by id.');
-        }
+    'DELETE /api/user': async (ctx, next) => {
+        ctx.rest();
+    },
+    'PUT /api/user': async (ctx, next) => {
+        ctx.rest();
     }
 };
