@@ -4,6 +4,7 @@
   "description": "the api provided for other group",
   "main": "app.js",
   "dependencies": {
+    "joi": "^17.4.0",
     "koa-bodyparser": "^4.3.0",
     "koa-router": "^10.0.0",
     "mysql": "^2.18.1",
