@@ -2,6 +2,7 @@ const APIError = require("../rest").APIError;
 const Url = require("url");
 const Joi = require("joi");
 const Pool = require("../config");
+const MuseNameCache = require("../museum_cache");
 
 
 const POST_SCHEME = Joi.object({
@@ -17,30 +18,42 @@ const POST_SCHEME = Joi.object({
 
 
 module.exports = {
-    'GET /api/museum': async (ctx, next) => {
+    'GET /api/museum/info': async (ctx, next) => {
         ctx.rest();
     },
-    'POST /api/museum': async (ctx, next) => {
-        const {value,error} = POST_SCHEME.validate(ctx.request.body);
+    'POST /api/museum/info': async (ctx, next) => {
+        var {value,error} = POST_SCHEME.validate(ctx.request.body);
 
         if(Joi.isError(error)){
             throw new APIError("参数错误",error.message);
         }
-        const {muse_Name,muse_Intro,muse_Location,muse_Address,muse_Opentime,muse_price,muse_class,muse_Ename} = value;
-        const query_string = `insert into 
+        const insert_sql = `insert into 
                             \`museum info table\` 
-                            (muse_Name,muse_Intro,muse_Location,muse_Address,muse_Opentime,muse_price,muse_class,muse_Ename) values 
-                            (?,?,?,?,?,?,?,?)`;
-        const rows = await Pool.execute(query_string,[muse_Name,muse_Intro,muse_Location,muse_Address,muse_Opentime,muse_price,muse_class,muse_Ename]);
+                            SET ?`;
+        const [row,err] = await Pool.query(insert_sql,value);
+        console.log(row);
+        
         ctx.rest({
             code:"success",
             info:"success",
         });
+        // 再解决缓存中的muse_Name匹配,插入news info table表
+        let {muse_Name} = value;
+        let waiting_array = MuseNameCache.get(muse_Name)
+        if(waiting_array != undefined){
+            waiting_array.forEach(async element =>{
+                let [result,err]=await Pool.query(`insert into 
+                                    \`news info table\` 
+                                    SET ?`,
+                                    {muse_ID:row.insertId,
+                                        ...element})
+            });
+        }
     },
-    'DELETE /api/museum': async (ctx, next) => {
+    'DELETE /api/museum/info': async (ctx, next) => {
         ctx.rest();
     },
-    'PUT /api/museum': async (ctx, next) => {
+    'PUT /api/museum/info': async (ctx, next) => {
         ctx.rest();
     }
 };
