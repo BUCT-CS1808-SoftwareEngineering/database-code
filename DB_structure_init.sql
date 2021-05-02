@@ -37,7 +37,7 @@ CREATE TABLE `admin table`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `attention table`;
 CREATE TABLE `attention table`  (
-  `att_ID` int NOT NULL,
+  `att_ID` int NOT NULL AUTO_INCREMENT,
   `muse_ID` int NOT NULL,
   `user_ID` int NOT NULL,
   PRIMARY KEY (`att_ID`) USING BTREE,
@@ -45,7 +45,7 @@ CREATE TABLE `attention table`  (
   INDEX `user_ID`(`user_ID`) USING BTREE,
   CONSTRAINT `muse_ID` FOREIGN KEY (`muse_ID`) REFERENCES `museum info table` (`muse_ID`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `user_ID` FOREIGN KEY (`user_ID`) REFERENCES `user table` (`user_ID`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of attention table
