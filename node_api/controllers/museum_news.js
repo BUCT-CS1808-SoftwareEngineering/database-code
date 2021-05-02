@@ -30,7 +30,7 @@ module.exports = {
         const [row] = await Pool.execute(`select muse_ID from \`museum info table\` where muse_Name=?`,[muse_Name]);
         //若museum info table里暂无此博物馆则存入缓存。
         if(row.length === 0 ){
-            MuseNameCache.put(value);
+            MuseNameCache.put(value,"news info table");
             ctx.rest({
                 code:"waiting",
                 info:"waiting",

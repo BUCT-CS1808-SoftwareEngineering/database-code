@@ -27,11 +27,9 @@ module.exports = {
         if(Joi.isError(error)){
             throw new APIError("参数错误",error.message);
         }
-        const insert_sql = `insert into 
-                            \`museum info table\` 
-                            SET ?`;
+        const insert_sql = `insert into \`museum info table\` SET ?`;
         const [row,err] = await Pool.query(insert_sql,value);
-        console.log(row);
+        // console.log(row);
         
         ctx.rest({
             code:"success",
@@ -42,11 +40,7 @@ module.exports = {
         let waiting_array = MuseNameCache.get(muse_Name)
         if(waiting_array != undefined){
             waiting_array.forEach(async element =>{
-                let [result,err]=await Pool.query(`insert into 
-                                    \`news info table\` 
-                                    SET ?`,
-                                    {muse_ID:row.insertId,
-                                        ...element})
+                await Pool.query(`insert into \`${element.table}\` SET ?`,{muse_ID:row.insertId,...element.query});
             });
         }
     },
