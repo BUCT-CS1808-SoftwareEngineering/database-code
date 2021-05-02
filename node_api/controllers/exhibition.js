@@ -6,30 +6,25 @@ const MuseNameCache = require("../museum_cache");
 
 
 const POST_SCHEME = Joi.object({
-    // news_ID:Joi.number().required(),
-    // muse_ID:Joi.number().required(),
     muse_Name:Joi.string().max(50).required(),
-    news_Name:Joi.string().max(255).required(),
-    news_Content:Joi.string().required(),
-    news_type:Joi.number().required(),
-    news_time:Joi.date().required(),
-    news_source:Joi.string().max(20).required(),
+    exhib_Name:Joi.string().max(50).required(),
+    exhib_Content:Joi.string().required(),
+    exhib_Pic:Joi.string().required(),
 })
 module.exports = {
-    'GET /api/museum/news': async (ctx, next) => {
+    'GET /api/exhibition': async (ctx, next) => {
         ctx.rest();
     },
-    'POST /api/museum/news': async (ctx, next) => {
+    'POST /api/exhibition': async (ctx, next) => {
         const {value,error} = POST_SCHEME.validate(ctx.request.body);
-
         if(Joi.isError(error)){
             throw new APIError("参数错误",error.message);
         }
-        const {muse_Name} = value;
+        var {muse_Name} = value;
         const [row] = await Pool.execute(`select muse_ID from \`museum info table\` where muse_Name=?`,[muse_Name]);
         //若museum info table里暂无此博物馆则存入缓存。
         if(row.length === 0 ){
-            MuseNameCache.put(value,"news info table");
+            MuseNameCache.put(value,"exhibition info table");
             ctx.rest({
                 code:"waiting",
                 info:"waiting",
@@ -39,7 +34,7 @@ module.exports = {
         delete value.muse_Name;
         const muse_ID = row[0].muse_ID;
         const query_string = `insert into 
-                            \`news info table\` 
+                            \`exhibition info table\` 
                             SET ?`;
         await Pool.query(query_string,{muse_ID:muse_ID,...value});
         ctx.rest({
@@ -47,10 +42,10 @@ module.exports = {
             info:"success",
         });
     },
-    'DELETE /api/museum/news': async (ctx, next) => {
+    'DELETE /api/exhibition': async (ctx, next) => {
         ctx.rest();
     },
-    'PUT /api/museum/news': async (ctx, next) => {
+    'PUT /api/exhibition': async (ctx, next) => {
         ctx.rest();
     }
 };
