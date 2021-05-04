@@ -4,7 +4,10 @@ const Joi = require("joi");
 const Pool = require("../config");
 const MuseNameCache = require("../museum_cache");
 
-
+const GET_SCHEME = Joi.object({
+    pageIndex:Joi.number().integer().required(),
+    pageSize:Joi.number().integer().required()
+})
 const POST_SCHEME = Joi.object({
     muse_Name:Joi.string().max(50).required(),
     muse_Intro:Joi.string().required(),
@@ -19,7 +22,18 @@ const POST_SCHEME = Joi.object({
 
 module.exports = {
     'GET /api/museum/info': async (ctx, next) => {
-        ctx.rest();
+        var query = Url.parse(ctx.request.url,true,true).query;
+        var {value,error} = GET_SCHEME.validate(query);
+        if(Joi.isError(error)){
+            throw new APIError("参数错误",error.message);
+        }
+        var {pageIndex,pageSize} = value;
+        const get_sql = `select * from \`museum info table\` limit ? offset ?`;
+        var [result,err] = await Pool.query(get_sql,[pageSize,(pageIndex-1)*pageSize]);
+        ctx.rest({
+            code:"success",
+            info:result,
+        });
     },
     'POST /api/museum/info': async (ctx, next) => {
         var {value,error} = POST_SCHEME.validate(ctx.request.body);

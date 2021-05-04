@@ -3,7 +3,11 @@ const Url = require("url");
 const Joi = require("joi");
 const Pool = require("../config");
 
-
+const GET_SCHEME = Joi.object({
+    muse_ID:Joi.number().integer().required(),
+    pageIndex:Joi.number().integer().required(),
+    pageSize:Joi.number().integer().required()
+})
 const POST_SCHEME = Joi.object({
     muse_ID:Joi.number().required(),
     user_ID:Joi.number().required(),

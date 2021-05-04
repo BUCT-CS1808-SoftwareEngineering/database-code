@@ -1,5 +1,5 @@
 const APIError = require('../rest').APIError;
-const pool = require("../config");
+const Pool = require("../config");
 const Url =require("url");
 const Joi = require("joi");
 
@@ -27,7 +27,7 @@ module.exports = {
             throw new APIError("参数错误",error.message);
         }
         const get_sql = `select * from \`comment table\` where user_ID=?`;
-        var [result,err] = await pool.execute(get_sql,[value.user_ID]);
+        var [result,err] = await Pool.execute(get_sql,[value.user_ID]);
         ctx.rest({
             code:"success",
             info:result,
@@ -40,7 +40,7 @@ module.exports = {
             throw new APIError("参数错误",error.message);
         }
         const insert_sql = `insert into \`comment table\` SET ?`;
-        var [result,err] = await pool.query(insert_sql,value);
+        var [result,err] = await Pool.query(insert_sql,value);
         ctx.rest({
             code:"success",
             info:"success",
@@ -57,7 +57,7 @@ module.exports = {
 
         const {com_ID,com_IfShow} = value;
         const udpate_sql = `update \`comment table\` set com_IfShow=? where com_ID=?`;
-        var [result,err] = await pool.execute(udpate_sql,[com_IfShow,com_ID]);
+        var [result,err] = await Pool.execute(udpate_sql,[com_IfShow,com_ID]);
         ctx.rest({
             code:"success",
             info:"success"
