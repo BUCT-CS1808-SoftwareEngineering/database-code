@@ -10,6 +10,7 @@ module.exports = {
                 console.log(`Process API ${ctx.request.method} ${ctx.request.url}...`);
                 ctx.rest = (data) => {
                     ctx.response.type = 'application/json';
+                    ctx.set('Access-Control-Allow-Origin', '*');
                     ctx.response.body = data;
                 }
                 try {
