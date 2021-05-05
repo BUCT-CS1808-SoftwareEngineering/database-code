@@ -43,8 +43,8 @@ CREATE TABLE `attention table`  (
   PRIMARY KEY (`att_ID`) USING BTREE,
   INDEX `muse_ID`(`muse_ID`) USING BTREE,
   INDEX `user_ID`(`user_ID`) USING BTREE,
-  CONSTRAINT `muse_ID` FOREIGN KEY (`muse_ID`) REFERENCES `museum info table` (`muse_ID`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  CONSTRAINT `user_ID` FOREIGN KEY (`user_ID`) REFERENCES `user table` (`user_ID`) ON DELETE RESTRICT ON UPDATE RESTRICT
+  CONSTRAINT `muse_ID` FOREIGN KEY (`muse_ID`) REFERENCES `museum info table` (`muse_ID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `user_ID` FOREIGN KEY (`user_ID`) REFERENCES `user table` (`user_ID`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
@@ -63,7 +63,7 @@ CREATE TABLE `collection info table`  (
   `col_Photo` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   PRIMARY KEY (`col_ID`) USING BTREE,
   INDEX `muse_ID_col`(`muse_ID`) USING BTREE,
-  CONSTRAINT `muse_ID_col` FOREIGN KEY (`muse_ID`) REFERENCES `museum info table` (`muse_ID`) ON DELETE RESTRICT ON UPDATE RESTRICT
+  CONSTRAINT `muse_ID_col` FOREIGN KEY (`muse_ID`) REFERENCES `museum info table` (`muse_ID`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
@@ -84,8 +84,8 @@ CREATE TABLE `comment table`  (
   PRIMARY KEY (`com_ID`) USING BTREE,
   INDEX `muse_ID_com`(`muse_ID`) USING BTREE,
   INDEX `user_ID_com`(`user_ID`) USING BTREE,
-  CONSTRAINT `muse_ID_com` FOREIGN KEY (`muse_ID`) REFERENCES `museum info table` (`muse_ID`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  CONSTRAINT `user_ID_com` FOREIGN KEY (`user_ID`) REFERENCES `user table` (`user_ID`) ON DELETE RESTRICT ON UPDATE RESTRICT
+  CONSTRAINT `muse_ID_com` FOREIGN KEY (`muse_ID`) REFERENCES `museum info table` (`muse_ID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `user_ID_com` FOREIGN KEY (`user_ID`) REFERENCES `user table` (`user_ID`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
@@ -106,7 +106,7 @@ CREATE TABLE `education act table`  (
   `act_Url` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   PRIMARY KEY (`act_ID`) USING BTREE,
   INDEX `muse_ID_edu`(`muse_ID`) USING BTREE,
-  CONSTRAINT `muse_ID_edu` FOREIGN KEY (`muse_ID`) REFERENCES `museum info table` (`muse_ID`) ON DELETE RESTRICT ON UPDATE RESTRICT
+  CONSTRAINT `muse_ID_edu` FOREIGN KEY (`muse_ID`) REFERENCES `museum info table` (`muse_ID`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
@@ -125,7 +125,7 @@ CREATE TABLE `exhibition info table`  (
   `exhib_Pic` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   PRIMARY KEY (`exhib_ID`) USING BTREE,
   INDEX `muse_ID_exh`(`muse_ID`) USING BTREE,
-  CONSTRAINT `muse_ID_exh` FOREIGN KEY (`muse_ID`) REFERENCES `museum info table` (`muse_ID`) ON DELETE RESTRICT ON UPDATE RESTRICT
+  CONSTRAINT `muse_ID_exh` FOREIGN KEY (`muse_ID`) REFERENCES `museum info table` (`muse_ID`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
@@ -146,8 +146,8 @@ CREATE TABLE `feedback table`  (
   PRIMARY KEY (`fdback_ID`) USING BTREE,
   INDEX `muse_ID_fd`(`muse_ID`) USING BTREE,
   INDEX `user_ID_fd`(`user_ID`) USING BTREE,
-  CONSTRAINT `muse_ID_fd` FOREIGN KEY (`muse_ID`) REFERENCES `museum info table` (`muse_ID`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  CONSTRAINT `user_ID_fd` FOREIGN KEY (`user_ID`) REFERENCES `user table` (`user_ID`) ON DELETE RESTRICT ON UPDATE RESTRICT
+  CONSTRAINT `muse_ID_fd` FOREIGN KEY (`muse_ID`) REFERENCES `museum info table` (`muse_ID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `user_ID_fd` FOREIGN KEY (`user_ID`) REFERENCES `user table` (`user_ID`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
@@ -189,7 +189,7 @@ CREATE TABLE `news info table`  (
   `news_source` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   PRIMARY KEY (`news_ID`) USING BTREE,
   INDEX `muse_ID_news`(`muse_ID`) USING BTREE,
-  CONSTRAINT `muse_ID_news` FOREIGN KEY (`muse_ID`) REFERENCES `museum info table` (`muse_ID`) ON DELETE RESTRICT ON UPDATE RESTRICT
+  CONSTRAINT `muse_ID_news` FOREIGN KEY (`muse_ID`) REFERENCES `museum info table` (`muse_ID`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
@@ -212,8 +212,8 @@ CREATE TABLE `review video table`  (
   PRIMARY KEY (`video_ID`) USING BTREE,
   INDEX `muse_ID_vid`(`muse_ID`) USING BTREE,
   INDEX `user_ID_vid`(`user_ID`) USING BTREE,
-  CONSTRAINT `muse_ID_vid` FOREIGN KEY (`muse_ID`) REFERENCES `museum info table` (`muse_ID`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  CONSTRAINT `user_ID_vid` FOREIGN KEY (`user_ID`) REFERENCES `user table` (`user_ID`) ON DELETE RESTRICT ON UPDATE RESTRICT
+  CONSTRAINT `muse_ID_vid` FOREIGN KEY (`muse_ID`) REFERENCES `museum info table` (`muse_ID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `user_ID_vid` FOREIGN KEY (`user_ID`) REFERENCES `user table` (`user_ID`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
