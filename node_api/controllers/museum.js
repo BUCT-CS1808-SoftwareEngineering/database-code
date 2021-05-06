@@ -90,5 +90,8 @@ module.exports = {
     },
     'PUT /api/museum/info': async (ctx, next) => {
         ctx.rest();
+    },
+    'OPTIONS /api/museum/info' :async (ctx,next)=>{
+        ctx.rest({});
     }
 };

@@ -11,6 +11,9 @@ module.exports = {
                 ctx.rest = (data) => {
                     ctx.response.type = 'application/json';
                     ctx.set('Access-Control-Allow-Origin', '*');
+                    ctx.set('Access-Control-Allow-Methods','PUT, POST, GET, DELETE, OPTIONS');
+                    ctx.set('Access-Control-ALlow-Headers','X-Requested-With, Accept, Origin, Content-Type');
+                    ctx.set('Access-Control-Allow-Credentials',true);
                     ctx.response.body = data;
                 }
                 try {
