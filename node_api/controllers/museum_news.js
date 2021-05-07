@@ -5,7 +5,7 @@ const Pool = require("../config");
 const MuseNameCache = require("../museum_cache");
 
 const GET_SCHEME = Joi.object({
-    muse_ID:Joi.number().integer().required(),
+    muse_ID:Joi.number().integer(),
     pageIndex:Joi.number().integer().required(),
     pageSize:Joi.number().integer().required()
 })
@@ -28,8 +28,14 @@ module.exports = {
             throw new APIError("参数错误",error.message);
         }
         var {muse_ID,pageIndex,pageSize} = value;
-        const get_sql = `select * from \`news info table\` where muse_ID=? limit ? offset ?`;
-        var [result,err] = await Pool.query(get_sql,[muse_ID,pageSize,(pageIndex-1)*pageSize]);
+        if(typeof muse_ID == "undefined"){
+            const get_sql = `select * from \`news info table\` limit ? offset ?`;
+            var [result,err] = await Pool.query(get_sql,[pageSize,(pageIndex-1)*pageSize]);
+        }
+        else{
+            const get_sql = `select * from \`news info table\` where muse_ID=? limit ? offset ?`;
+            var [result,err] = await Pool.query(get_sql,[muse_ID,pageSize,(pageIndex-1)*pageSize]);
+        }
         ctx.rest({
             code:"success",
             info:result,

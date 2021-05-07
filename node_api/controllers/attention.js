@@ -4,17 +4,42 @@ const Joi = require("joi");
 const Pool = require("../config");
 
 const GET_SCHEME = Joi.object({
-    muse_ID:Joi.number().integer().required(),
+    muse_ID:Joi.number().integer(),
+    user_ID:Joi.number().integer(),
     pageIndex:Joi.number().integer().required(),
     pageSize:Joi.number().integer().required()
 })
 const POST_SCHEME = Joi.object({
-    muse_ID:Joi.number().required(),
-    user_ID:Joi.number().required(),
+    muse_ID:Joi.number().integer().required(),
+    user_ID:Joi.number().integer().required(),
+})
+const DELETE_SCHEME= Joi.object({
+    att_ID:Joi.number().integer().required(),
 })
 module.exports = {
     'GET /api/attention': async (ctx, next) => {
-        ctx.rest();
+        var query = Url.parse(ctx.request.url,true,true).query;
+        var {value,error} = GET_SCHEME.validate(query);
+        if(Joi.isError(error)){
+            throw new APIError("参数错误",error.message);
+        }
+        var {user_ID,muse_ID,pageIndex,pageSize} = value;
+        if(typeof muse_ID == "undefined" && typeof user_ID == "undefined"){
+            const get_sql = `select * from \`attention table\` limit ? offset ?`;
+            var [result,err] = await Pool.query(get_sql,[pageSize,(pageIndex-1)*pageSize]);
+        }
+        else if (muse_ID){
+            const get_sql = `select user.* from \`attention table\` att,\`user table\` user where att.muse_ID=? and att.user_ID=user.user_ID limit ? offset ?`;
+            var [result,err] = await Pool.query(get_sql,[muse_ID,pageSize,(pageIndex-1)*pageSize]);
+        }
+        else{
+            const get_sql = `select mus.* from \`attention table\` att,\`museum info table\` mus where att.user_ID=? and att.muse_ID=mus.muse_ID limit ? offset ?`;
+            var [result,err] = await Pool.query(get_sql,[user_ID,pageSize,(pageIndex-1)*pageSize]);
+        }
+        ctx.rest({
+            code:"success",
+            info:result,
+        });
     },
     'GET /api/attention/num':async (ctx,next)=>{
         const get_num_sql = `select count(*) from \`attention table\``;
@@ -47,9 +72,17 @@ module.exports = {
         });
     },
     'DELETE /api/attention': async (ctx, next) => {
-        ctx.rest();
+        var {value,error} = DELETE_SCHEME.validate(ctx.request.body);
+        if(Joi.isError(error)){
+            throw new APIError("参数错误",error.message);
+        }
+        var {att_ID} = value;
+        var [row,err] = await Pool.query(`delete from \`attention table\` where att_ID=?`,[att_ID]);
+        if(!err){
+            ctx.rest({
+                code:"success",
+                info:"success",
+            })
+        }     
     },
-    'PUT /api/attention': async (ctx, next) => {
-        ctx.rest();
-    }
 };
