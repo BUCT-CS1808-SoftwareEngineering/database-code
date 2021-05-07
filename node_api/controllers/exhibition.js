@@ -30,6 +30,22 @@ module.exports = {
             info:result,
         });
     },
+    'GET /api/museum/exhibition/num':async (ctx,next)=>{
+        const get_num_sql = `select count(*) from \`exhibition info table\``;
+        var [result,fields,err] = await Pool.query(get_num_sql);
+        if(!err){
+            ctx.rest({
+                code:"success",
+                info:Object.values(result[0])[0],
+            });
+        }
+        else{
+            ctx.rest({
+                code:"fail",
+                info:"fail",
+            });
+        }
+    },
     'POST /api/exhibition': async (ctx, next) => {
         const {value,error} = POST_SCHEME.validate(ctx.request.body);
         if(Joi.isError(error)){

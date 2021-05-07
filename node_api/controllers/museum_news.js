@@ -16,6 +16,9 @@ const POST_SCHEME = Joi.object({
     news_type:Joi.number().required(),
     news_time:Joi.date().required(),
     news_source:Joi.string().max(20).required(),
+});
+const DELETE_SCHEME = Joi.object({
+    news_ID:Joi.number().integer().required(),
 })
 module.exports = {
     'GET /api/museum/news': async (ctx, next) => {
@@ -60,10 +63,37 @@ module.exports = {
             info:"success",
         });
     },
+    'GET /api/museum/news/num':async (ctx,next)=>{
+        const get_num_sql = `select count(*) from \`news info table\``;
+        var [result,fields,err] = await Pool.query(get_num_sql);
+        if(!err){
+            ctx.rest({
+                code:"success",
+                info:Object.values(result[0])[0],
+            });
+        }
+        else{
+            ctx.rest({
+                code:"fail",
+                info:"fail",
+            });
+        }
+    },
     'DELETE /api/museum/news': async (ctx, next) => {
-        ctx.rest();
+        var {value,error} = DELETE_SCHEME.validate(ctx.request.body);
+        if(Joi.isError(error)){
+            throw new APIError("参数错误",error.message);
+        }
+        var {news_ID} = value;
+        var [row,err] = await Pool.query(`delete from \`news info table\` where news_ID=?`,[news_ID]);
+        if(!err){
+            ctx.rest({
+                code:"success",
+                info:"success",
+            })
+        }
     },
     'PUT /api/museum/news': async (ctx, next) => {
         ctx.rest();
-    }
+    },
 };

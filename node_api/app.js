@@ -10,6 +10,9 @@ const app = new Koa();
 
 // log request URL:
 app.use(async (ctx, next) => {
+    if(ctx.request.method === "OPTIONS"){
+        ctx.response.status=200;
+    }
     console.log(`Process ${ctx.request.method} ${ctx.request.url}...`);
     await next();
 });

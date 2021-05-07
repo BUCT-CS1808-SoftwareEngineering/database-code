@@ -37,7 +37,7 @@ module.exports = {
             info:result,
         });
     },
-    'GET /api/museum/num':async (ctx,next)=>{
+    'GET /api/museum/info/num':async (ctx,next)=>{
         const get_num_sql = `select count(*) from \`museum info table\``;
         var [result,fields,err] = await Pool.query(get_num_sql);
         if(!err){
@@ -90,8 +90,5 @@ module.exports = {
     },
     'PUT /api/museum/info': async (ctx, next) => {
         ctx.rest();
-    },
-    'OPTIONS /api/museum/info' :async (ctx,next)=>{
-        ctx.rest({});
     }
 };

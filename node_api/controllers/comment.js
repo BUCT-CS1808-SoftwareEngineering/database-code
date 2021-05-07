@@ -33,7 +33,22 @@ module.exports = {
             info:result,
         });
     },
-
+    'GET /api/comment//num':async (ctx,next)=>{
+        const get_num_sql = `select count(*) from \`comment table\``;
+        var [result,fields,err] = await Pool.query(get_num_sql);
+        if(!err){
+            ctx.rest({
+                code:"success",
+                info:Object.values(result[0])[0],
+            });
+        }
+        else{
+            ctx.rest({
+                code:"fail",
+                info:"fail",
+            });
+        }
+    },
     'POST /api/comment': async (ctx, next) => {
         var {value,error} = POST_SCHEME.validate(ctx.request.body);
         if(Joi.isError(error)){
