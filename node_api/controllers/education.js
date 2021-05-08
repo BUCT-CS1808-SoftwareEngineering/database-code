@@ -5,7 +5,7 @@ const Pool = require("../config");
 const MuseNameCache = require("../museum_cache");
 
 const GET_SCHEME = Joi.object({
-    muse_ID:Joi.number().integer().required(),
+    muse_ID:Joi.number().integer(),
     pageIndex:Joi.number().integer().required(),
     pageSize:Joi.number().integer().required()
 })
@@ -16,6 +16,9 @@ const POST_SCHEME = Joi.object({
     act_Time:Joi.string().max(20).required(),
     act_Pic:Joi.string().required(),
     act_Url:Joi.string().uri().required(),
+});
+const DELETE_SCHEME = Joi.object({
+    act_ID:Joi.number().integer().required(),
 })
 module.exports = {
     'GET /api/education': async (ctx, next) => {
@@ -25,28 +28,26 @@ module.exports = {
             throw new APIError("参数错误",error.message);
         }
         var {muse_ID,pageIndex,pageSize} = value;
-        const get_sql = `select * from \`education act table\` where muse_ID=? limit ? offset ?`;
-        var [result,err] = await Pool.query(get_sql,[muse_ID,pageSize,(pageIndex-1)*pageSize]);
+        if(typeof muse_ID == "undefined"){
+            const get_sql = `select * from \`education act table\` limit ? offset ?`;
+            var [result] = await Pool.query(get_sql,[pageSize,(pageIndex-1)*pageSize]);
+        }
+        else{
+            const get_sql = `select * from \`education act table\` where muse_ID=? limit ? offset ?`;
+            var [result] = await Pool.query(get_sql,[muse_ID,pageSize,(pageIndex-1)*pageSize]);
+        }
         ctx.rest({
             code:"success",
             info:result,
         });
     },
-    'GET /api/museum/education/num':async (ctx,next)=>{
+    'GET /api/education/num':async (ctx,next)=>{
         const get_num_sql = `select count(*) from \`education act table\``;
-        var [result,fields,err] = await Pool.query(get_num_sql);
-        if(!err){
-            ctx.rest({
-                code:"success",
-                info:Object.values(result[0])[0],
-            });
-        }
-        else{
-            ctx.rest({
-                code:"fail",
-                info:"fail",
-            });
-        }
+        var [result] = await Pool.query(get_num_sql);
+        ctx.rest({
+            code:"success",
+            info:Object.values(result[0])[0],
+        });
     },
     'POST /api/education': async (ctx, next) => {
         const {value,error} = POST_SCHEME.validate(ctx.request.body);
@@ -54,7 +55,6 @@ module.exports = {
             throw new APIError("参数错误",error.message);
         }
         const {muse_Name} = value;
-
         const [row] = await Pool.execute(`select muse_ID from \`museum info table\` where muse_Name=?`,[muse_Name]);
         //若museum info table里暂无此博物馆则存入缓存。
         if(row.length === 0 ){
@@ -77,7 +77,16 @@ module.exports = {
         });
     },
     'DELETE /api/education': async (ctx, next) => {
-        ctx.rest();
+        var {value,error} = DELETE_SCHEME.validate(ctx.request.body);
+        if(Joi.isError(error)){
+            throw new APIError("参数错误",error.message);
+        }
+        var {act_ID} = value;
+        await Pool.query(`delete from \`education act table\` where act_ID=?`,[act_ID]);
+        ctx.rest({
+            code:"success",
+            info:"success",
+        })
     },
     'PUT /api/education': async (ctx, next) => {
         ctx.rest();

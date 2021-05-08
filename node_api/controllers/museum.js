@@ -31,7 +31,7 @@ module.exports = {
         }
         var {pageIndex,pageSize} = value;
         const get_sql = `select * from \`museum info table\` limit ? offset ?`;
-        var [result,err] = await Pool.query(get_sql,[pageSize,(pageIndex-1)*pageSize]);
+        var [result] = await Pool.query(get_sql,[pageSize,(pageIndex-1)*pageSize]);
         ctx.rest({
             code:"success",
             info:result,
@@ -39,19 +39,11 @@ module.exports = {
     },
     'GET /api/museum/info/num':async (ctx,next)=>{
         const get_num_sql = `select count(*) from \`museum info table\``;
-        var [result,fields,err] = await Pool.query(get_num_sql);
-        if(!err){
-            ctx.rest({
-                code:"success",
-                info:Object.values(result[0])[0],
-            });
-        }
-        else{
-            ctx.rest({
-                code:"fail",
-                info:"fail",
-            });
-        }
+        var [result] = await Pool.query(get_num_sql);
+        ctx.rest({
+            code:"success",
+            info:Object.values(result[0])[0],
+        });
     },
     'POST /api/museum/info': async (ctx, next) => {
         var {value,error} = POST_SCHEME.validate(ctx.request.body);
@@ -60,7 +52,7 @@ module.exports = {
             throw new APIError("参数错误",error.message);
         }
         const insert_sql = `insert into \`museum info table\` SET ?`;
-        const [row,fields,err] = await Pool.query(insert_sql,value);
+        const [row] = await Pool.query(insert_sql,value);
         // 再解决缓存中的muse_Name匹配,插入news info table表
         let {muse_Name} = value;
         let waiting_array = MuseNameCache.get(muse_Name)
@@ -80,13 +72,11 @@ module.exports = {
             throw new APIError("参数错误",error.message);
         }
         var {muse_ID} = value;
-        var [row,err] = await Pool.query(`delete from \`museum info table\` where muse_ID=?`,[muse_ID]);
-        if(!err){
-            ctx.rest({
-                code:"success",
-                info:"success",
-            })
-        }
+        await Pool.query(`delete from \`museum info table\` where muse_ID=?`,[muse_ID]);
+        ctx.rest({
+            code:"success",
+            info:"success",
+        })
     },
     'PUT /api/museum/info': async (ctx, next) => {
         ctx.rest();

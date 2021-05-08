@@ -30,11 +30,11 @@ module.exports = {
         var {muse_ID,pageIndex,pageSize} = value;
         if(typeof muse_ID == "undefined"){
             const get_sql = `select * from \`news info table\` limit ? offset ?`;
-            var [result,err] = await Pool.query(get_sql,[pageSize,(pageIndex-1)*pageSize]);
+            var [result] = await Pool.query(get_sql,[pageSize,(pageIndex-1)*pageSize]);
         }
         else{
             const get_sql = `select * from \`news info table\` where muse_ID=? limit ? offset ?`;
-            var [result,err] = await Pool.query(get_sql,[muse_ID,pageSize,(pageIndex-1)*pageSize]);
+            var [result] = await Pool.query(get_sql,[muse_ID,pageSize,(pageIndex-1)*pageSize]);
         }
         ctx.rest({
             code:"success",
@@ -71,19 +71,11 @@ module.exports = {
     },
     'GET /api/museum/news/num':async (ctx,next)=>{
         const get_num_sql = `select count(*) from \`news info table\``;
-        var [result,fields,err] = await Pool.query(get_num_sql);
-        if(!err){
-            ctx.rest({
-                code:"success",
-                info:Object.values(result[0])[0],
-            });
-        }
-        else{
-            ctx.rest({
-                code:"fail",
-                info:"fail",
-            });
-        }
+        var [result] = await Pool.query(get_num_sql);
+        ctx.rest({
+            code:"success",
+            info:Object.values(result[0])[0],
+        });
     },
     'DELETE /api/museum/news': async (ctx, next) => {
         var {value,error} = DELETE_SCHEME.validate(ctx.request.body);
@@ -91,13 +83,11 @@ module.exports = {
             throw new APIError("参数错误",error.message);
         }
         var {news_ID} = value;
-        var [row,err] = await Pool.query(`delete from \`news info table\` where news_ID=?`,[news_ID]);
-        if(!err){
-            ctx.rest({
-                code:"success",
-                info:"success",
-            })
-        }
+        await Pool.query(`delete from \`news info table\` where news_ID=?`,[news_ID]);
+        ctx.rest({
+            code:"success",
+            info:"success",
+        })
     },
     'PUT /api/museum/news': async (ctx, next) => {
         ctx.rest();
