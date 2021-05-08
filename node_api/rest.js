@@ -19,8 +19,8 @@ module.exports = {
                 try {
                     await next();
                 } catch (e) {
-                    console.log('Process API error...');
-                    console.log(e);
+                    console.error('Process API error...');
+                    console.error(e);
                     ctx.response.status = 400;
                     ctx.response.type = 'application/json';
                     ctx.response.body = {
