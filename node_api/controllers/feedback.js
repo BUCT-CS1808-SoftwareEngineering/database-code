@@ -19,6 +19,12 @@ const POST_SCHEME = Joi.object({
 const DELETE_SCHEME = Joi.object({
     fdback_ID:Joi.number().integer().required(),
 })
+const PUT_SCHEME = Joi.object({
+    fdback_ID:Joi.number().integer().required(),
+    env_Review:Joi.number().integer().required(),
+    exhibt_Review:Joi.number().integer().required(),
+    service_Review:Joi.number().integer().required(),
+})
 module.exports = {
     'GET /api/feedback': async (ctx, next) => {
         var query = Url.parse(ctx.request.url,true,true).query;
@@ -53,6 +59,16 @@ module.exports = {
             },
         });
     },
+    'GET /api/feedback/average': async (ctx,next)=>{
+        var query = Url.parse(ctx.request.url,true,true).query;
+        var {muse_ID} = query;
+        const count_sql = `select avg(env_Review) as "env_Review",avg(exhibt_Review) as "exhibt_Review",avg(service_Review) as "service_Review" from \`feedback table\` where muse_ID=?`;
+        var [result] = await Pool.query(count_sql,[muse_ID]);
+        ctx.rest({
+            code:"success",
+            info:result[0],
+        })
+    },
     'POST /api/feedback': async (ctx, next) => {
         const {value,error} = POST_SCHEME.validate(ctx.request.body);
         if(Joi.isError(error)){
@@ -77,6 +93,16 @@ module.exports = {
         ctx.rest();
     },
     'PUT /api/feedback': async (ctx, next) => {
-        ctx.rest();
+        const {value,error} = PUT_SCHEME.validate(ctx.request.body);
+        if(Joi.isError(error)){
+            throw new APIError("参数错误",error.message);
+        }
+        var {fdback_ID} = value;
+        const put_sql = `update \`feedback table\` set ? where fdback_ID=?`;
+        await Pool.query(put_sql,[value,fdback_ID]);
+        ctx.rest({
+            code:"success",
+            info:"success",
+        });
     }
 };
