@@ -27,26 +27,24 @@ module.exports = {
         }
         var {muse_ID,pageIndex,pageSize} = value;
         if(typeof muse_ID == "undefined"){
+            const get_num_sql = `select count(*) from \`exhibition info table\``;
+            var [num_rows] = await Pool.query(get_num_sql);
             const get_sql = `select * from \`exhibition info table\` limit ? offset ?`;
             var [result] = await Pool.query(get_sql,[pageSize,(pageIndex-1)*pageSize]);
         }
         else{
+            const get_num_sql = `select count(*) from \`exhibition info table\` where muse_ID=?`;
+            var [num_rows] = await Pool.query(get_num_sql,[muse_ID]);
             const get_sql = `select * from \`exhibition info table\` where muse_ID=? limit ? offset ?`;
             var [result] = await Pool.query(get_sql,[muse_ID,pageSize,(pageIndex-1)*pageSize]);
         }
         ctx.rest({
             code:"success",
-            info:result,
+            info:{
+                num:Object.values(num_rows[0])[0],
+                items:result,
+            },
         });
-    },
-    'GET /api/exhibition/num':async (ctx,next)=>{
-        const get_num_sql = `select count(*) from \`exhibition info table\``;
-        var [result,fields,err] = await Pool.query(get_num_sql);
-        ctx.rest({
-            code:"success",
-            info:Object.values(result[0])[0],
-        });
-        
     },
     'POST /api/exhibition': async (ctx, next) => {
         const {value,error} = POST_SCHEME.validate(ctx.request.body);

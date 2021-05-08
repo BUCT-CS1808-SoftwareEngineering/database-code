@@ -28,32 +28,29 @@ module.exports = {
         }
         var {user_ID,muse_ID,pageIndex,pageSize} = value;
         if(typeof muse_ID == "undefined" && typeof user_ID == "undefined"){
+            const get_num_sql = `select count(*) from \`feedback table\``;
+            var [num_rows] = await Pool.query(get_num_sql);
             const get_sql = `select * from \`feedback table\` limit ? offset ?`;
             var [result] = await Pool.query(get_sql,[pageSize,(pageIndex-1)*pageSize]);
         }
         else if(muse_ID){
+            const get_num_sql = `select count(*) from \`feedback table\` where muse_ID=?`;
+            var [num_rows] = await Pool.query(get_num_sql,[muse_ID]);
             const get_sql = `select user.* from \`feedback table\` fed,\`user table\` user where fed.muse_ID=? and fed.user_ID=user.user_ID limit ? offset ?`;
             var [result] = await Pool.query(get_sql,[muse_ID,pageSize,(pageIndex-1)*pageSize]);
         }
-        else if(user_ID){
+        else{
+            const get_num_sql = `select count(*) from \`feedback table\` where user_ID=?`;
+            var [num_rows] = await Pool.query(get_num_sql,[user_ID]);
             const get_sql = `select mus.* from \`feedback table\` fed,\`museum info table\` mus where fed.user_ID=? and fed.muse_ID=mus.muse_ID limit ? offset ?`;
             var [result] = await Pool.query(get_sql,[user_ID,pageSize,(pageIndex-1)*pageSize]);
         }
-        else{
-            const get_sql = `select * from \`feedback table\` set ?`;
-            var [result] = await Pool.query(get_sql,value);
-        }
         ctx.rest({
             code:"success",
-            info:result,
-        });
-    },
-    'GET /api/feedback/num':async (ctx,next)=>{
-        const get_num_sql = `select count(*) from \`feedback table\``;
-        var [result] = await Pool.query(get_num_sql);
-        ctx.rest({
-            code:"success",
-            info:Object.values(result[0])[0],
+            info:{
+                num:Object.values(num_rows[0])[0],
+                items:result,
+            },
         });
     },
     'POST /api/feedback': async (ctx, next) => {

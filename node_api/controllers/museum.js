@@ -30,16 +30,21 @@ module.exports = {
             throw new APIError("参数错误",error.message);
         }
         var {pageIndex,pageSize} = value;
+        const get_num_sql = `select count(*) from \`museum info table\``;
+        var [num_rows] = await Pool.query(get_num_sql);
         const get_sql = `select * from \`museum info table\` limit ? offset ?`;
         var [result] = await Pool.query(get_sql,[pageSize,(pageIndex-1)*pageSize]);
         ctx.rest({
             code:"success",
-            info:result,
+            info:{
+                num:Object.values(num_rows[0])[0],
+                items:result,
+            },
         });
     },
     'GET /api/museum/info/num':async (ctx,next)=>{
         const get_num_sql = `select count(*) from \`museum info table\``;
-        var [result] = await Pool.query(get_num_sql);
+        var [num_rows] = await Pool.query(get_num_sql);
         ctx.rest({
             code:"success",
             info:Object.values(result[0])[0],

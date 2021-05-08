@@ -29,16 +29,23 @@ module.exports = {
         }
         var {muse_ID,pageIndex,pageSize} = value;
         if(typeof muse_ID == "undefined"){
+            const get_num_sql = `select count(*) from \`news info table\``;
+            var [num_rows] = await Pool.query(get_num_sql);
             const get_sql = `select * from \`news info table\` limit ? offset ?`;
             var [result] = await Pool.query(get_sql,[pageSize,(pageIndex-1)*pageSize]);
         }
         else{
+            const get_num_sql = `select count(*) from \`news info table\` where muse_ID=?`;
+            var [num_rows] = await Pool.query(get_num_sql,[muse_ID]);
             const get_sql = `select * from \`news info table\` where muse_ID=? limit ? offset ?`;
             var [result] = await Pool.query(get_sql,[muse_ID,pageSize,(pageIndex-1)*pageSize]);
         }
         ctx.rest({
             code:"success",
-            info:result,
+            info:{
+                num:Object.values(num_rows[0])[0],
+                items:result,
+            },
         });
     },
     'POST /api/museum/news': async (ctx, next) => {
@@ -67,14 +74,6 @@ module.exports = {
         ctx.rest({
             code:"success",
             info:"success",
-        });
-    },
-    'GET /api/museum/news/num':async (ctx,next)=>{
-        const get_num_sql = `select count(*) from \`news info table\``;
-        var [result] = await Pool.query(get_num_sql);
-        ctx.rest({
-            code:"success",
-            info:Object.values(result[0])[0],
         });
     },
     'DELETE /api/museum/news': async (ctx, next) => {
