@@ -42,14 +42,6 @@ module.exports = {
             },
         });
     },
-    'GET /api/museum/info/num':async (ctx,next)=>{
-        const get_num_sql = `select count(*) from \`museum info table\``;
-        var [num_rows] = await Pool.query(get_num_sql);
-        ctx.rest({
-            code:"success",
-            info:Object.values(result[0])[0],
-        });
-    },
     'POST /api/museum/info': async (ctx, next) => {
         var {value,error} = POST_SCHEME.validate(ctx.request.body);
 
