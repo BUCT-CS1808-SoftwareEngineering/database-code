@@ -19,7 +19,11 @@ const POST_SCHEME = Joi.object({
 const DELETE_SCHEME = Joi.object({
     admin_ID:Joi.number().integer().required(),
 })
-
+const PUT_SCHEME = Joi.object({
+    admin_ID:Joi.number().integer().required(),
+    admin_Name:Joi.string().max(50).required(),
+    admin_Passwd:Joi.string().max(20).required(),
+});
 module.exports = {
     'GET /api/admin': async (ctx, next) => {
         var query =Url.parse(ctx.request.url,true,true).query;
@@ -72,14 +76,14 @@ module.exports = {
             info:"success",
         })
     },
-    'PUT /api/user': async (ctx, next) => {
+    'PUT /api/admin': async (ctx, next) => {
         var {value,error} = PUT_SCHEME.validate(ctx.request.body);
         if(Joi.isError(error)){
             throw new APIError("参数错误",error.message);
         }
-        var {com_IfShow,com_ID} = value;
-        const udpate_sql = `update \`comment table\` set com_IfShow=? where com_ID=?`;
-        await Pool.execute(udpate_sql,[com_IfShow,com_ID]);
+        var {admin_ID,admin_Name,admin_Passwd} = value;
+        const udpate_sql = `update \`admin table\` set admin_Name= ?, admin_Passwd = ? where admin_ID=?`;
+        await Pool.execute(udpate_sql,[admin_Name,admin_Passwd,admin_ID]);
         ctx.rest({
             code:"success",
             info:"success"

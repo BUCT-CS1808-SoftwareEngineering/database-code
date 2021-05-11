@@ -17,7 +17,13 @@ const POST_SCHEME = Joi.object({
 const DELETE_SCHEME = Joi.object({
     user_ID:Joi.number().integer().required(),
 })
-
+const PUT_SCHEME = Joi.object({
+    user_ID:Joi.number().integer().required(),
+    user_Name:Joi.string().max(50).required(),
+    user_Phone:Joi.string().max(20).required(),
+    user_Passwd:Joi.string().max(20).required(),
+    user_Email:Joi.string().email().required()
+});
 
 module.exports = {
     'GET /api/user': async (ctx, next) => {
@@ -73,7 +79,19 @@ module.exports = {
         })
     },
     'PUT /api/user': async (ctx, next) => {
-        ctx.rest();
+        const {value,error} = PUT_SCHEME.validate(ctx.request.body);
+        if(Joi.isError(error)){
+            throw new APIError("参数错误",error.message);
+        }
+        var {user_Name,user_Phone,user_Passwd,user_Email,user_ID} = value;
+        const put_sql = `update \`user table\` set user_Name= ?, user_Phone= ?, user_Passwd = ?,user_Email = ? where user_ID=?`;
+        await Pool.query(put_sql,[user_Name,user_Phone,user_Passwd,user_Email,user_ID]);
+        ctx.rest({
+            code:"success",
+            info:"success"
+        });
+
+        
     }
 
     
