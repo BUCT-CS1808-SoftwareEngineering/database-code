@@ -6,6 +6,7 @@ const MuseNameCache = require("../museum_cache");
 
 const GET_SCHEME = Joi.object({
     muse_ID:Joi.number().integer(),
+    muse_Name:Joi.string().max(50),
     pageIndex:Joi.number().integer().required(),
     pageSize:Joi.number().integer().required()
 })
@@ -22,6 +23,11 @@ const POST_SCHEME = Joi.object({
 const DELETE_SCHEME = Joi.object({
     muse_ID:Joi.number().integer().required(),
 })
+/**
+ * 用于模糊搜索，根据前端传来的中文字符串得出正则表达式。
+ */
+const getRegexpFromChinese = (museum_name)=>  museum_name.trim().split("").join("?");
+
 
 module.exports = {
     'GET /api/museum/info': async (ctx, next) => {
@@ -30,18 +36,25 @@ module.exports = {
         if(Joi.isError(error)){
             throw new APIError("参数错误",error.message);
         }
-        var {muse_ID,pageIndex,pageSize} = value;
-        if(typeof muse_ID == undefined){
-            const get_num_sql = `select count(*) from \`museum info table\``;
-            var [num_rows] = await Pool.query(get_num_sql);
-            const get_sql = `select * from \`museum info table\` limit ? offset ?`;
-            var [result] = await Pool.query(get_sql,[pageSize,(pageIndex-1)*pageSize]);
-        }
-        else{
+        var {muse_ID,muse_Name,pageIndex,pageSize} = value;
+        if(typeof muse_ID != "undefined"){
             const get_num_sql = `select count(*) from \`museum info table\` where muse_ID=?`;
             var [num_rows] = await Pool.query(get_num_sql,[muse_ID]);
             const get_sql = `select * from \`museum info table\` where muse_ID=? limit ? offset ?`;
             var [result] = await Pool.query(get_sql,[muse_ID,pageSize,(pageIndex-1)*pageSize]);
+        }
+        else if(typeof muse_Name != "undefined"){
+            const sql_regexp = getRegexpFromChinese(muse_Name);
+            const get_num_sql = `select count(*) from \`museum info table\` where muse_Name regexp ?`;
+            var [num_rows] = await Pool.query(get_num_sql,[sql_regexp]);
+            const get_sql = `select * from \`museum info table\` where muse_Name regexp ? limit ? offset ?`;
+            var [result] = await Pool.query(get_sql,[sql_regexp,pageSize,(pageIndex-1)*pageSize]);
+        }
+        else{
+            const get_num_sql = `select count(*) from \`museum info table\``;
+            var [num_rows] = await Pool.query(get_num_sql);
+            const get_sql = `select * from \`museum info table\` limit ? offset ?`;
+            var [result] = await Pool.query(get_sql,[pageSize,(pageIndex-1)*pageSize]);
         }
         ctx.rest({
             code:"success",
