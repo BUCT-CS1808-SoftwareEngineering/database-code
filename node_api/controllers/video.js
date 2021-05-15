@@ -2,6 +2,9 @@ const APIError = require("../rest").APIError;
 const Url = require("url");
 const Joi = require("joi");
 const Pool = require("../config");
+const asyncBusboy = require('async-busboy');
+// import asyncBusboy from 'async-busboy'
+
 const fs = require("fs");
 /*var express = require("express");
 var router = express.Router();
@@ -13,6 +16,13 @@ const GET_SCHEME = Joi.object({
     pageSize:Joi.number().integer().required()
 })
 const POST_SCHEME = Joi.object({
+    // muse_ID:Joi.number().integer().required(),
+    // user_ID:Joi.number().integer().required(),
+    // video_Url:Joi.string().required(),
+    // video_IfShow:Joi.boolean().required(),
+    // video_Name:Joi.string().max(50).required(),
+    // video_Time:Joi.date().required(),
+    // video_Description:Joi.string().required(),
 })
 const DELETE_SCHEME = Joi.object({
     video_ID:Joi.number().integer().required(),
@@ -22,6 +32,7 @@ const PUT_SCHEME = Joi.object({
     video_ID:Joi.number().integer().required(),
     video_IfShow:Joi.bool().required(),
 })
+
 
 
 
@@ -46,13 +57,29 @@ module.exports = {
             },
         });
     },
-    'POST /api/video': async (ctx, next) => {
-
-        /*router.post('/upload', upload.single('file'), function(req, res, next){
-            console.log(req);
-            res.send({ret_code: '0'});
-         });*/
-    },
+    // 'POST /api/video': async (ctx, next) => {
+    //
+    //     const  {files,fields} = await asyncBusboy(ctx.req);
+    //     console.log(files,fields);
+    //     router.post('/upload', upload.single('file'), function(req, res, next){
+    //         console.log(req);
+    //         res.send({ret_code: '0'});
+    //     });
+    //
+    //     // var {value,error} = POST_SCHEME.validate(ctx.request.body);
+    //     // if(Joi.isError(error)){
+    //     //     throw new APIError("参数错误",error.message);
+    //     // }
+    //     // const insert_sql = `insert into \`review video table\` SET ?`;
+    //     // await Pool.query(insert_sql,value);
+    //     // ctx.rest({
+    //     //     code:"success",
+    //     //     info:"success",
+    //     // })
+    //     ctx.rest({a:1})
+    //
+    //
+    // },
     'DELETE /api/video': async (ctx, next) => {
 
         var {value,error} = DELETE_SCHEME.validate(ctx.request.body);
