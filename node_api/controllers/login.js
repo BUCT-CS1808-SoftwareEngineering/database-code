@@ -8,7 +8,7 @@ const verify = util.promisify(jwt.verify)
 // const setToken = require('../public/token_verify');
 
 const GET_SCHEME = Joi.object({
-    user_ID:Joi.number().integer(),
+  //  user_ID:Joi.number().integer(),
     user_Name:Joi.string().max(50).required(),
     user_Passwd:Joi.string().max(20).required(),
     // admin_ID:Joi.number().integer(),
@@ -20,7 +20,7 @@ const GET_SCHEME = Joi.object({
 
 
 const POST_SCHEME = Joi.object({
-    user_ID:Joi.number().integer(),
+//    user_ID:Joi.number().integer(),
     user_Name:Joi.string().max(50).required(),
     user_Passwd:Joi.string().max(20).required(),
     // admin_ID:Joi.number().integer(),
@@ -39,10 +39,13 @@ module.exports = {
         if(Joi.isError(error)){
             throw new APIError("参数错误",error.message);
         }
-        var {user_ID,user_Name,user_Passwd} = value;
+        // var {user_ID,user_Name,user_Passwd} = value;
+        var {user_Name,user_Passwd} = value;
   
-        const get_num_sql = `select count(*) from \`user table\`where user_ID =? and user_Name=? and user_Passwd=?`;
-        var [num_rows] = await Pool.query(get_num_sql,[user_ID,user_Name,user_Passwd]);
+        // const get_num_sql = `select count(*) from \`user table\`where user_ID =? and user_Name=? and user_Passwd=?`;
+        const get_num_sql = `select count(*) from \`user table\`where user_Name=? and user_Passwd=?`;
+        // var [num_rows] = await Pool.query(get_num_sql,[user_ID,user_Name,user_Passwd]);
+        var [num_rows] = await Pool.query(get_num_sql,[user_Name,user_Passwd]);
         if(Object.values(num_rows[0])[0]!=0){
             ctx.rest({
                 code:"success",
@@ -59,11 +62,16 @@ module.exports = {
     
     'POST /api/login' :async (ctx,next) =>{
         const {value,error} = POST_SCHEME.validate(ctx.request.body);
-        var {user_ID,user_Name,user_Passwd} = value ;
-        const get_num_sql = `select count(*) from \`user table\`where user_ID =? and user_Name=? and user_Passwd=?`;
-        var [num_rows] = await Pool.query(get_num_sql,[user_ID,user_Name,user_Passwd]);
-        const get_Avatar_sql= `select user_Avatar from \`user table\`where user_ID =?`;
-        var [avatar]=await Pool.query(get_Avatar_sql,[user_ID]);
+        var {user_Name,user_Passwd} = value ;
+        // var {user_ID,user_Name,user_Passwd} = value ;
+        const get_num_sql = `select count(*) from \`user table\`where user_Name=? and user_Passwd=?`;
+        var [num_rows] = await Pool.query(get_num_sql,[user_Name,user_Passwd]);
+        
+        const get_Avatar_sql= `select user_Avatar from \`user table\`where user_Name =?`;
+        var [avatar]=await Pool.query(get_Avatar_sql,[user_Name]);
+    
+        const get_ID_sql= `select user_ID from \`user table\`where user_Name =?`;
+        var  [user_ID]=await Pool.query(get_ID_sql,[user_Name]);
         if(Object.values(num_rows[0])[0]!=0){
             // ctx.rest({
             //     code:"success",
@@ -78,7 +86,7 @@ module.exports = {
             // await next();
             let userToken = {
                 name: user_Name,
-                id:user_ID,
+                id:Object.values(user_ID[0])[0],
                 picture:Object.values(avatar[0])[0]
             }
             const token = jwt.sign(userToken, "chenqi", {expiresIn: '0.5h'})

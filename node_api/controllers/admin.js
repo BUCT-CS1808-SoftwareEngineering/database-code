@@ -47,14 +47,23 @@ module.exports = {
 
     'POST /api/admin': async (ctx, next) => {
         const {value,error} = POST_SCHEME.validate(ctx.request.body);
-        
+        var {admin_Name} = value;
+        const get_ifnew_sql = `select count(*) from \`admin table\`where admin_Name=? `;
+        var [num_rows] = await Pool.query(get_ifnew_sql,[admin_Name]);
+
         if(Joi.isError(error)){
             throw new APIError("参数错误",error.message);
         }
-        const query_string = `insert into 
+        if(Object.values(num_rows[0])[0]==0){
+            const query_string = `insert into 
                             \`admin table\` 
                             set ?`;
         await Pool.query(query_string,{...value});
+        }
+        else{
+            throw new APIError("出错啦","换个独一无二的昵称吧！");
+        }
+        
 
         
 

@@ -49,14 +49,22 @@ module.exports = {
 
     'POST /api/user': async (ctx, next) => {
         const {value,error} = POST_SCHEME.validate(ctx.request.body);
+        var {user_Name} = value;
+        const get_ifnew_sql = `select count(*) from \`user table\`where user_Name=? `;
+        var [num_rows] = await Pool.query(get_ifnew_sql,[user_Name]);
         
         if(Joi.isError(error)){
             throw new APIError("参数错误",error.message);
         }
-        const query_string = `insert into 
+        if(Object.values(num_rows[0])[0]==0){
+            const query_string = `insert into 
                             \`user table\` 
                             set ?`;
-        await Pool.query(query_string,{...value,user_Avatar:"11"});
+            await Pool.query(query_string,{...value,user_Avatar:"11"});
+        }
+        else{
+            throw new APIError("出错啦","换个独一无二的昵称吧！");
+        }
 
         
 
