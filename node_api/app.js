@@ -12,6 +12,10 @@ const app = new Koa();
 app.use(async (ctx, next) => {
     if(ctx.request.method === "OPTIONS"){
         ctx.response.status=200;
+        ctx.set('Access-Control-Allow-Origin', '*');
+        ctx.set('Access-Control-Allow-Methods','PUT, POST, GET, DELETE, OPTIONS');
+        ctx.set('Access-Control-ALlow-Headers','X-Requested-With, Accept, Origin, Content-Type');
+        ctx.set('Access-Control-Allow-Credentials',true);
     }
     console.log(`Process ${ctx.request.method} ${ctx.request.url}...`);
     await next();
