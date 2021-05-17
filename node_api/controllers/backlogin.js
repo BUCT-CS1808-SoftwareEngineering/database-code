@@ -5,7 +5,7 @@ const Pool = require("../config");
 const jwt = require('jsonwebtoken');
 const util = require('util')
 const verify = util.promisify(jwt.verify) 
-const setToken = require('../public/token_verify')
+// const setToken = require('../public/token_verify')
 const GET_SCHEME = Joi.object({
     
     admin_ID:Joi.number().integer(),
@@ -98,10 +98,14 @@ module.exports = {
         let payload
         if (token) {
             payload = await jwt.verify(token.split(' ')[1], "chenqi") 
-            ctx.body = {
-                payload
+            ctx.rest({
+                code:"success",
+                info:payload,
+            });
+            // ctx.body = {
+            //     payload
 
-            }
+            // }
         } else {
             ctx.body = {
                 message: 'token error',

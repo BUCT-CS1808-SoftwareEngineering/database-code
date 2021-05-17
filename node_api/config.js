@@ -1,8 +1,8 @@
 const mysql2 = require("mysql2/promise");
 var config = {
-    database: 'test', 
+    database: 'ttest', 
     user: 'root', 
-    password: 'cs1808',
+    password: '123',
     host: 'localhost',
     port: 3306,
     waitForConnections: true,
