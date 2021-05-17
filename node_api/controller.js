@@ -1,4 +1,6 @@
 const fs = require('fs');
+const multer = require('@koa/multer');
+const upload = multer();
 
 // add url-route in /controllers:
 
@@ -10,7 +12,10 @@ function addMapping(router, mapping) {
             console.log(`register URL mapping: GET ${path}`);
         } else if (url.startsWith('POST ')) {
             var path = url.substring(5);
-            router.post(path, mapping[url]);
+            if(url.includes(("video"))){
+                router.post(path,multer({dest:'upload'}).single("file"),mapping[url]);
+            }
+            else router.post(path, mapping[url]);
             console.log(`register URL mapping: POST ${path}`);
         } else if (url.startsWith('PUT ')) {
             var path = url.substring(4);
