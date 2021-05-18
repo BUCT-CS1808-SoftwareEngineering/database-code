@@ -90,24 +90,29 @@ module.exports = {
                 picture:Object.values(avatar[0])[0]
             }
             const token = jwt.sign(userToken, "chenqi", {expiresIn: '0.5h'})
-            ctx.body = {
-                message: '获取token成功',
-                code: 1,
+            ctx.rest( {
+                info: '获取token成功',
+                code: "success",
                 token
-            }
+            });
         }
-        // else{
-        //     ctx.rest({
-        //         code:"error",
-        //         info:"用户名密码不匹配",
+        else{
+            ctx.rest({
+                code:"error",
+                info:"用户名密码不匹配",
+            });
+        }
+        // else {
+        //     ctx.rest( {
+        //         info: '获取token成功',
+        //         code: "success",
+        //         token
         //     });
+        //     ctx.body = {
+        //         message: '参数错误',
+        //         code: -1
+        //     }
         // }
-        else {
-            ctx.body = {
-                message: '参数错误',
-                code: -1
-            }
-        }
 
     },
     'GET /api/login/info': async (ctx) => {
@@ -123,11 +128,11 @@ module.exports = {
             //     payload
 
             // }
-        } else {
-            ctx.body = {
-                message: 'token error',
-                code: -1
-            }
+        } else{
+            ctx.rest({
+                code:"error",
+                info:"获取token失败",
+            });
         }
     }
     
