@@ -15,7 +15,11 @@ const POST_SCHEME = Joi.object({
 })
 const DELETE_SCHEME= Joi.object({
     att_ID:Joi.number().integer().required(),
-})
+});
+const PUT_SCHEME = Joi.object({
+    muse_ID:Joi.number().integer().required(),
+    user_ID:Joi.number().integer().required(),//用户改关注博物馆
+});
 module.exports = {
     'GET /api/attention': async (ctx, next) => {
         var query = Url.parse(ctx.request.url,true,true).query;
@@ -76,4 +80,19 @@ module.exports = {
             info:"success",
         })
     },
+
+    'PUT /api/attention': async (ctx, next) => {//取消关注
+        var {value,error} = PUT_SCHEME.validate(ctx.request.body);
+        if(Joi.isError(error)){
+            throw new APIError("参数错误",error.message);
+        }
+        var {user_ID,muse_ID} = value;
+        const delete_sql = `delete from\`attention table\` where user_ID =? and muse_ID =?`;
+        await Pool.execute(delete_sql,[user_ID,muse_ID]);
+        ctx.rest({
+            code:"success",
+            info:"success"
+        });
+    }
+
 };
