@@ -5,6 +5,7 @@ const Pool = require("../config");
 const fs = require('fs')
 
 const GET_SCHEME = Joi.object({
+    user_ID:Joi.number().integer(),
     muse_ID:Joi.number().integer(),
     muse_Name:Joi.string().max(50),
     pageIndex:Joi.number().integer().required(),
@@ -39,10 +40,72 @@ module.exports = {
         }
         var {pageIndex,pageSize}=value;
 
+
         const get_num_sql = `select count(*) from \`review video table\``;
         var [num_rows] = await Pool.query(get_num_sql);
         const get_sql = `select * from \`review video table\` limit ? offset ?`;
         var [result] = await Pool.query(get_sql,[pageSize,(pageIndex-1)*pageSize]);
+        //根据user_ID获得user_Name
+        const get_userName_sql = `select user_Name from \`user table\` where user_ID=${result[0].user_ID}`;
+        var [userName] = await Pool.query(get_userName_sql);
+        //根据muse_ID获得muse_Name
+        const get_museName_sql = `select muse_Name from  \`museum info table\` where muse_ID=${result[0].muse_ID}`;
+        var [museName] = await Pool.query(get_museName_sql);
+
+        for(var i=0;i<Object.values(num_rows[0])[0];i++)
+        {
+            var itema = result[i]
+            var itemb = museName[i]
+            var itemc = userName[i]
+            console.log(result,itemb,museName);
+            itema.muse_Name = itemb.muse_Name;
+            itema.user_Name = itemc.user_Name;
+            result[i]=itema;
+        }
+
+        ctx.rest({
+            code:"success",
+            info:{
+                num:Object.values(num_rows[0])[0],
+
+                items:result,
+            },
+        });
+    },
+
+    'GET /api/video/userVideo': async (ctx, next) => {
+        var query =Url.parse(ctx.request.url,true,true).query;
+        var {value,error}=GET_SCHEME.validate(query);
+        if(Joi.isError(error)){
+            throw new APIError("参数错误",error.message);
+        }
+        var {user_ID,pageIndex,pageSize}=value;
+
+        const get_num_sql = `select count(*) from \`review video table\``;
+        var [num_rows] = await Pool.query(get_num_sql);
+
+        //根据user_ID获得muse_ID
+        const get_museid_sql = `select muse_ID from \`review video table\` where user_ID=?`;
+        var [museID] = await Pool.query(get_museid_sql,[user_ID]);
+        //根据user_ID获得user_Name
+        const get_userName_sql = `select user_Name from \`user table\` where user_ID=?`;
+        var [userName] = await Pool.query(get_userName_sql,[user_ID]);
+        //根据muse_ID获得muse_Name
+        const get_museName_sql = `select muse_Name from  \`museum info table\` where muse_ID=${museID[0].muse_ID}`;
+        var [museName] = await Pool.query(get_museName_sql);
+
+        const get_sql = `select * from \`review video table\`  where user_ID=? limit ? offset ?`;
+        var [result] = await Pool.query(get_sql,[user_ID,pageSize,(pageIndex-1)*pageSize]);
+
+        for(var i=0;i<Object.values(num_rows[0])[0];i++)
+        {
+            var itema = result[i]
+            var itemb = museName[i]
+            var itemc = userName[i]
+            itema.muse_Name = itemb.muse_Name;
+            itema.user_Name = itemc.user_Name;
+            result[i]=itema;
+        }
         ctx.rest({
             code:"success",
             info:{
@@ -58,20 +121,56 @@ module.exports = {
         if(Joi.isError(error)){
             throw new APIError("参数错误",error.message);
         }
+
         var {muse_ID,muse_Name,pageIndex,pageSize} = value;
         if(typeof muse_ID == "undefined"){
             const get_num_sql = `select count(*) from \`review video table\``;
             var [num_rows] = await Pool.query(get_num_sql);
             const get_id_sql = `select muse_ID from \`museum info table\` where muse_Name regexp ?`;
             var [ID]= await Pool.query(get_id_sql,[getRegexpFromChinese(muse_Name)]);
+            //根据muse_ID获得user_ID
+            const get_userid_sql = `select user_ID from \`review video table\` where muse_ID=${ID[0].muse_ID}`;
+            var [userID] = await Pool.query(get_userid_sql);
+            //根据user_ID获得user_Name
+            const get_userName_sql = `select user_Name from \`user table\` where user_ID=${userID[0].user_ID}`;
+            var [userName] = await Pool.query(get_userName_sql);
+            //根据muse_ID获得muse_Name
+            const get_museName_sql = `select muse_Name from  \`museum info table\` where muse_ID=${ID[0].muse_ID}`;
+            var [museName] = await Pool.query(get_museName_sql);
             const get_sql = `select * from \`review video table\` where muse_ID=${ID[0].muse_ID} limit ? offset ?`;
             var [result] = await Pool.query(get_sql,[pageSize,(pageIndex-1)*pageSize]);
         }
         else{
             const get_num_sql = `select count(*) from \`review video table\` where muse_ID=?`;
             var [num_rows] = await Pool.query(get_num_sql,[muse_ID]);
+            //根据muse_ID获得user_ID
+            const get_userid_sql = `select user_ID from \`review video table\` where muse_ID=?`;
+            var [userID] = await Pool.query(get_userid_sql,[muse_ID]);
+            // //根据user_ID获得user_Name
+            const get_userName_sql = `select user_Name from \`user table\` where user_ID=${userID[0].user_ID}`;
+            var [userName] = await Pool.query(get_userName_sql);
+            //根据muse_ID获得muse_Name
+            const get_museName_sql = `select muse_Name from  \`museum info table\` where muse_ID=?`;
+            var [museName] = await Pool.query(get_museName_sql,[muse_ID]);
+
             const get_sql = `select * from \`review video table\` where muse_ID=? limit ? offset ?`;
+
+            // const get_sql= `select muse_Name from  \`museum info table\` where muse_ID=?
+            //                 union
+            //                 select user_Name from  \`user table\` where user_ID=${userID}
+            //                 union
+            //                 select * from \`review video table\` where muse_ID=? limit ? offset ?`;
             var [result] = await Pool.query(get_sql,[muse_ID,pageSize,(pageIndex-1)*pageSize]);
+        }
+
+        for(var i=0;i<Object.values(num_rows[0])[0];i++)
+        {
+            var itema = result[i]
+            var itemb = museName[i]
+            var itemc = userName[i]
+            itema.muse_Name = itemb.muse_Name;
+            itema.user_Name = itemc.user_Name;
+            result[i]=itema;
         }
         ctx.rest({
             code:"success",
