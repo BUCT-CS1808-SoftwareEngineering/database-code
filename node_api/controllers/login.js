@@ -2,9 +2,13 @@ const APIError = require("../rest").APIError;
 const Url = require("url");
 const Joi = require("joi");
 const Pool = require("../config");
+const jwt = require('jsonwebtoken');
+const util = require('util')
+const verify = util.promisify(jwt.verify) 
+// const setToken = require('../public/token_verify');
 
 const GET_SCHEME = Joi.object({
-    user_ID:Joi.number().integer(),
+  //  user_ID:Joi.number().integer(),
     user_Name:Joi.string().max(50).required(),
     user_Passwd:Joi.string().max(20).required(),
     // admin_ID:Joi.number().integer(),
@@ -15,7 +19,19 @@ const GET_SCHEME = Joi.object({
 })
 
 
+const POST_SCHEME = Joi.object({
+//    user_ID:Joi.number().integer(),
+    user_Name:Joi.string().max(50).required(),
+    user_Passwd:Joi.string().max(20).required(),
+    // admin_ID:Joi.number().integer(),
+    // admin_Name:Joi.string().max(50).required(),
+    // admin_Passwd:Joi.string().max(20).required(),
+    // pageIndex:Joi.number().integer().required(),
+    // pageSize:Joi.number().integer().required()
+})
+
 module.exports = {
+
     'GET /api/login': async (ctx, next) => {
        // const {value,error} = GET_SCHEME.validate(ctx.request.body);
         var query =Url.parse(ctx.request.url,true,true).query;
@@ -23,10 +39,13 @@ module.exports = {
         if(Joi.isError(error)){
             throw new APIError("参数错误",error.message);
         }
-        var {user_ID,user_Name,user_Passwd} = value;
+        // var {user_ID,user_Name,user_Passwd} = value;
+        var {user_Name,user_Passwd} = value;
   
-        const get_num_sql = `select count(*) from \`user table\`where user_ID =? and user_Name=? and user_PassWd=?`;
-        var [num_rows] = await Pool.query(get_num_sql,[user_ID,user_Name,user_Passwd]);
+        // const get_num_sql = `select count(*) from \`user table\`where user_ID =? and user_Name=? and user_Passwd=?`;
+        const get_num_sql = `select count(*) from \`user table\`where user_Name=? and user_Passwd=?`;
+        // var [num_rows] = await Pool.query(get_num_sql,[user_ID,user_Name,user_Passwd]);
+        var [num_rows] = await Pool.query(get_num_sql,[user_Name,user_Passwd]);
         if(Object.values(num_rows[0])[0]!=0){
             ctx.rest({
                 code:"success",
@@ -41,7 +60,80 @@ module.exports = {
         }
     },
     
+    'POST /api/login' :async (ctx,next) =>{
+        const {value,error} = POST_SCHEME.validate(ctx.request.body);
+        var {user_Name,user_Passwd} = value ;
+        // var {user_ID,user_Name,user_Passwd} = value ;
+        const get_num_sql = `select count(*) from \`user table\`where user_Name=? and user_Passwd=?`;
+        var [num_rows] = await Pool.query(get_num_sql,[user_Name,user_Passwd]);
+        
+        const get_Avatar_sql= `select user_Avatar from \`user table\`where user_Name =?`;
+        var [avatar]=await Pool.query(get_Avatar_sql,[user_Name]);
+    
+        const get_ID_sql= `select user_ID from \`user table\`where user_Name =?`;
+        var  [user_ID]=await Pool.query(get_ID_sql,[user_Name]);
+        if(Object.values(num_rows[0])[0]!=0){
+            // ctx.rest({
+            //     code:"success",
+            //     info:"success",
+            // });
+            // setToken.setToken(user_Name, user_Passwd).then((data)=>{
+            //     ctx.body = {
+            //         msg:'登录成功',
+            //         token:data
+            //     }
+            // })
+            // await next();
+            let userToken = {
+                name: user_Name,
+                id:Object.values(user_ID[0])[0],
+                picture:Object.values(avatar[0])[0]
+            }
+            const token = jwt.sign(userToken, "chenqi", {expiresIn: '0.5h'})
+            ctx.rest( {
+                info: '获取token成功',
+                code: "success",
+                token
+            });
+        }
+        else{
+            ctx.rest({
+                code:"error",
+                info:"用户名密码不匹配",
+            });
+        }
+        // else {
+        //     ctx.rest( {
+        //         info: '获取token成功',
+        //         code: "success",
+        //         token
+        //     });
+        //     ctx.body = {
+        //         message: '参数错误',
+        //         code: -1
+        //     }
+        // }
 
+    },
+    'GET /api/login/info': async (ctx) => {
+        const token = ctx.header.authorization  
+        let payload
+        if (token) {
+            payload = await jwt.verify(token.split(' ')[1], "chenqi") 
+            ctx.rest({
+                    code:"success",
+                    info:payload,
+                });
+            // ctx.body = {
+            //     payload
 
+            // }
+        } else{
+            ctx.rest({
+                code:"error",
+                info:"获取token失败",
+            });
+        }
+    }
     
 };
