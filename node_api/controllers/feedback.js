@@ -39,17 +39,23 @@ module.exports = {
             const get_sql = `select * from \`feedback table\` limit ? offset ?`;
             var [result] = await Pool.query(get_sql,[pageSize,(pageIndex-1)*pageSize]);
         }
-        else if(muse_ID){
+        else if(typeof muse_ID == "undefined" && typeof user_ID != "undefined"){
             const get_num_sql = `select count(*) from \`feedback table\` where muse_ID=?`;
             var [num_rows] = await Pool.query(get_num_sql,[muse_ID]);
-            const get_sql = `select user.* from \`feedback table\` fed,\`user table\` user where fed.muse_ID=? and fed.user_ID=user.user_ID limit ? offset ?`;
+            const get_sql = `select * from \`feedback table\` where user_ID=? limit ? offset ?`;
+            var [result] = await Pool.query(get_sql,[user_ID,pageSize,(pageIndex-1)*pageSize]);
+        }
+        else if(typeof muse_ID != "undefined" && typeof user_ID == "undefined"){
+            const get_num_sql = `select count(*) from \`feedback table\` where muse_ID=?`;
+            var [num_rows] = await Pool.query(get_num_sql,[muse_ID]);
+            const get_sql = `select * from \`feedback table\` where muse_ID=? limit ? offset ?`;
             var [result] = await Pool.query(get_sql,[muse_ID,pageSize,(pageIndex-1)*pageSize]);
         }
         else{
-            const get_num_sql = `select count(*) from \`feedback table\` where user_ID=?`;
-            var [num_rows] = await Pool.query(get_num_sql,[user_ID]);
-            const get_sql = `select mus.* from \`feedback table\` fed,\`museum info table\` mus where fed.user_ID=? and fed.muse_ID=mus.muse_ID limit ? offset ?`;
-            var [result] = await Pool.query(get_sql,[user_ID,pageSize,(pageIndex-1)*pageSize]);
+            const get_num_sql = `select count(*) from \`feedback table\` where muse_ID=? and user_ID=?`;
+            var [num_rows] = await Pool.query(get_num_sql,[muse_ID,user_ID]);
+            const get_sql = `select * from \`feedback table\` where muse_ID=? and user_ID=? limit ? offset ?`;
+            var [result] = await Pool.query(get_sql,[muse_ID,user_ID,pageSize,(pageIndex-1)*pageSize]);
         }
         ctx.rest({
             code:"success",
