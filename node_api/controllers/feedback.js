@@ -9,12 +9,12 @@ const GET_SCHEME = Joi.object({
     pageIndex:Joi.number().integer().required(),
     pageSize:Joi.number().integer().required()
 })
-const POST_SCHEME = Joi.object({
+const POST_SCHEME = Joi.object({    
     muse_ID:Joi.number().integer().required(),
     user_ID:Joi.number().integer().required(),
-    env_Review:Joi.number().integer().required(),
-    exhibt_Review:Joi.number().integer().required(),
-    service_Review:Joi.number().integer().required(),
+    env_Review:Joi.number().integer().max(5).required(),
+    exhibt_Review:Joi.number().integer().max(5).required(),
+    service_Review:Joi.number().integer().max(5).required(),
 })
 const DELETE_SCHEME = Joi.object({
     fdback_ID:Joi.number().integer().required(),
