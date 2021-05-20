@@ -6,6 +6,8 @@ const controller = require('./controller');
 const multer = require('@koa/multer');
 
 const rest = require('./rest');
+const koa_static = require("koa-static");
+const path = require("path");
 
 const app = new Koa();
 
@@ -22,7 +24,8 @@ app.use(async (ctx, next) => {
     await next();
 });
 
-
+// 静态资源目录
+app.use(koa_static('static'));
 app.use(bodyParser());
 
 app.use(rest.restify());
