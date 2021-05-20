@@ -3,6 +3,7 @@ const Koa = require('koa');
 const bodyParser = require('koa-bodyparser');
 
 const controller = require('./controller');
+const multer = require('@koa/multer');
 
 const rest = require('./rest');
 
