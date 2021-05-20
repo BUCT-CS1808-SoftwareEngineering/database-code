@@ -4,8 +4,10 @@
   "description": "the api provided for other group",
   "main": "app.js",
   "dependencies": {
+    "@koa/multer": "^3.0.0",
     "async-busboy": "^1.0.1",
     "express": "^4.17.1",
+    "ffmpeg": "0.0.4",
     "fs": "0.0.1-security",
     "joi": "^17.4.0",
     "jsonwebtoken": "^8.5.1",
@@ -13,6 +15,7 @@
     "koa-bodyparser": "^4.3.0",
     "koa-jwt": "^4.0.1",
     "koa-router": "^10.0.0",
+    "koa-static": "^5.0.0",
     "multer": "^1.4.2",
     "mysql": "^2.18.1",
     "mysql2": "^2.2.5",
@@ -28,5 +31,3 @@
   "author": "Cheng Ercong",
   "license": "ISC"
 }
-
-
