@@ -52,7 +52,7 @@ module.exports = {
             else if(muse_ID){
                 const get_num_sql = `select count(*) from \`comment table\` where muse_ID=? and com_IfShow=?`;
                 var [num_rows] = await Pool.query(get_num_sql,[muse_ID,com_IfShow]);
-                const get_sql = `select * from \`comment table\` where muse_ID=? and com_IfShow=?limit ? offset ?`;
+                const get_sql = `select * from \`comment table\` where muse_ID=? and com_IfShow=? limit ? offset ?`;
                 var [result] = await Pool.query(get_sql,[muse_ID,com_IfShow,pageSize,(pageIndex-1)*pageSize]);
             }
             else{
