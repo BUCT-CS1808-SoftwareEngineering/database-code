@@ -19,7 +19,6 @@ const POST_SCHEME = Joi.object({
 const DELETE_SCHEME = Joi.object({
     col_ID:Joi.number().integer().required(),
 })
-<<<<<<< HEAD
 const PUT_SCHEME = Joi.object({
     col_ID:Joi.number().integer().required(),
     muse_Name:Joi.string().max(50).required(),
@@ -27,9 +26,7 @@ const PUT_SCHEME = Joi.object({
     col_Intro:Joi.string().required(),
     col_Photo:Joi.string().required(),
 })
-=======
 const getRegexpFromChinese = (col_Name) => col_Name.trim().split("").join("?")+"?";
->>>>>>> dev
 module.exports = {
     'GET /api/collection': async (ctx, next) => {
         var query = Url.parse(ctx.request.url,true,true).query;
