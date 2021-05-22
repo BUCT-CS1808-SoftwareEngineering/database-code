@@ -98,7 +98,7 @@ module.exports = {
             throw new APIError("参数错误",error.message);
         }
         const {muse_ID,min_review,max_review,pageIndex,pageSize} = value;
-        const get_sql = ` select * from \`comment table\` as ct where ct.muse_ID=? and ct.user_ID in (select rt.user_ID from (select ft.muse_ID,ft.user_ID,avg(env_Review+exhibt_Review+service_Review) as avg from \`feedback table\` as ft where ft.muse_ID=? group by ft.muse_ID having avg>? and avg<?) as rt) limit ? offset ?`;
+        const get_sql = ` select * from \`comment table\` as ct where ct.muse_ID=? and ct.user_ID in (select rt.user_ID from (select ft.muse_ID,ft.user_ID,sum(env_Review+exhibt_Review+service_Review)/3 as avg from \`feedback table\` as ft where ft.muse_ID=? group by ft.user_ID having avg>=? and avg<=?) as rt) limit ? offset ?`;
         const [result] = await Pool.query(get_sql,[muse_ID,muse_ID,min_review,max_review,pageSize,(pageIndex-1)*pageSize]);
         ctx.rest({
             code: "success",
