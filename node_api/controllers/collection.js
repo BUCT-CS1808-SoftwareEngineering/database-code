@@ -6,8 +6,9 @@ const MuseNameCache = require("../museum_cache");
 
 const GET_SCHEME = Joi.object({
     muse_ID:Joi.number().integer(),
+    col_Name:Joi.string(),
     pageIndex:Joi.number().integer().required(),
-    pageSize:Joi.number().integer().required()
+    pageSize:Joi.number().integer().required(),
 })
 const POST_SCHEME = Joi.object({
     muse_Name:Joi.string().max(50).required(),
@@ -18,6 +19,7 @@ const POST_SCHEME = Joi.object({
 const DELETE_SCHEME = Joi.object({
     col_ID:Joi.number().integer().required(),
 })
+const getRegexpFromChinese = (col_Name) => col_Name.trim().split("").join("?");
 module.exports = {
     'GET /api/collection': async (ctx, next) => {
         var query = Url.parse(ctx.request.url,true,true).query;
@@ -25,18 +27,32 @@ module.exports = {
         if(Joi.isError(error)){
             throw new APIError("参数错误",error.message);
         }
-        var {muse_ID,pageIndex,pageSize} = value;
-        if(typeof muse_ID == "undefined"){
+        var {muse_ID,col_Name,pageIndex,pageSize} = value;
+        if(typeof muse_ID == "undefined" && typeof col_Name=="undefined"){
             const get_num_sql = `select count(*) from \`collection info table\``;
             var [num_rows] = await Pool.query(get_num_sql);
             const get_sql = `select * from \`collection info table\` limit ? offset ?`;
             var [result] = await Pool.query(get_sql,[pageSize,(pageIndex-1)*pageSize]);
         }
-        else{
+        else if (typeof muse_ID != "undefined" && typeof col_Name=="undefined"){
             const get_num_sql = `select count(*) from \`collection info table\` where muse_ID=?`;
             var [num_rows] = await Pool.query(get_num_sql,[muse_ID]);
             const get_sql = `select * from \`collection info table\` where muse_ID=? limit ? offset ?`;
             var [result] = await Pool.query(get_sql,[muse_ID,pageSize,(pageIndex-1)*pageSize]);
+        }
+        else if (typeof muse_ID == "undefined" && typeof col_Name !="undefined"){
+            const sql_regexp = getRegexpFromChinese(col_Name);
+            const get_num_sql = `select count(*) from \`collection info table\` where col_Name regexp ?`;
+            var [num_rows] = await Pool.query(get_num_sql,[sql_regexp]);
+            const get_sql = `select * from \`collection info table\` where col_Name regexp ? limit ? offset ?`;
+            var [result] = await Pool.query(get_sql,[sql_regexp,pageSize,(pageIndex-1)*pageSize]);
+        }
+        else{
+            const sql_regexp = getRegexpFromChinese(col_Name);
+            const get_num_sql = `select count(*) from \`collection info table\` where muse_ID = ? and col_Name regexp ?`;
+            var [num_rows] = await Pool.query(get_num_sql,[muse_ID,sql_regexp]);
+            const get_sql = `select * from \`collection info table\` where muse_ID=? and col_Name regexp ? limit ? offset ?`;
+            var [result] = await Pool.query(get_sql,[muse_ID,sql_regexp,pageSize,(pageIndex-1)*pageSize]);
         }
         ctx.rest({
             code:"success",
