@@ -19,6 +19,13 @@ const POST_SCHEME = Joi.object({
 const DELETE_SCHEME = Joi.object({
     col_ID:Joi.number().integer().required(),
 })
+const PUT_SCHEME = Joi.object({
+    col_ID:Joi.number().integer().required(),
+    muse_Name:Joi.string().max(50).required(),
+    col_Name:Joi.string().max(50).required(),
+    col_Intro:Joi.string().required(),
+    col_Photo:Joi.string().required(),
+})
 const getRegexpFromChinese = (col_Name) => col_Name.trim().split("").join("?");
 module.exports = {
     'GET /api/collection': async (ctx, next) => {
@@ -104,6 +111,16 @@ module.exports = {
 
     },
     'PUT /api/collection': async (ctx, next) => {
-        ctx.rest();
+        var {value,error} = PUT_SCHEME.validate(ctx.request.body);
+        if(Joi.isError(error)){
+            throw new APIError("参数错误",error.message);
+        }
+        var {muse_Name,col_Name,col_Intro,col_Photo,col_ID} = value;
+        const udpate_sql = `update \`collection info table\` set muse_Name=?,col_Name=?,col_Intro=?,col_Photo=? where col_ID=?`;
+        await Pool.execute(udpate_sql,[muse_Name,col_Name,col_Intro,col_Photo,col_ID]);
+        ctx.rest({
+            code:"success",
+            info:"success"
+        });
     }
 };
