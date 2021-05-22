@@ -35,22 +35,21 @@ module.exports = {
             const get_sql = `select * from \`news info table\` limit ? offset ?`;
             var [result] = await Pool.query(get_sql,[pageSize,(pageIndex-1)*pageSize]);
         }
-        else if (news_ID == "undefined"){
+        else if (news_ID == "undefined" && typeof news_ID == "undefined"){
             const get_num_sql = `select count(*) from \`news info table\` where muse_ID=?`;
             var [num_rows] = await Pool.query(get_num_sql,[muse_ID]);
             const get_sql = `select * from \`news info table\` where muse_ID=? limit ? offset ?`;
             var [result] = await Pool.query(get_sql,[muse_ID,pageSize,(pageIndex-1)*pageSize]);
         }
         else{
-            const get_num_sql = `select count(*) from \`news info table\` where news_ID=?`;
-            var [num_rows] = await Pool.query(get_num_sql,[news_ID]);
             const get_sql = `select * from \`news info table\` where news_ID=? limit ? offset ?`;
             var [result] = await Pool.query(get_sql,[news_ID,pageSize,(pageIndex-1)*pageSize]);
         }
+        num_rows = typeof num_rows == "undefined"? 0 : Object.values(num_rows[0])[0]
         ctx.rest({
             code:"success",
             info:{
-                num:Object.values(num_rows[0])[0],
+                num: num_rows,
                 items:result,
             },
         });
