@@ -32,7 +32,7 @@ const PUT_SCHEME = Joi.object({
     video_ID: Joi.number().integer().required(),
     video_IfShow: Joi.bool().required(),
 })
-const getRegexpFromChinese = (museum_name) => museum_name.trim().split("").join("?");
+const getRegexpFromChinese = (museum_name) => museum_name.trim().split("").join("?")+"?";
 
 module.exports = {
 

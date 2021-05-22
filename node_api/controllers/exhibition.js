@@ -6,6 +6,7 @@ const MuseNameCache = require("../museum_cache");
 
 const GET_SCHEME = Joi.object({
     muse_ID:Joi.number().integer(),
+    exhib_Name:Joi.string(),
     pageIndex:Joi.number().integer().required(),
     pageSize:Joi.number().integer().required()
 })
@@ -18,6 +19,7 @@ const POST_SCHEME = Joi.object({
 const DELETE_SCHEME = Joi.object({
     exhib_ID:Joi.number().integer().required(),
 })
+const getRegexpFromChinese = (exhib_Name) => exhib_Name.trim().split("").join("?")+"?";
 module.exports = {
     'GET /api/exhibition': async (ctx, next) => {
         var query = Url.parse(ctx.request.url,true,true).query;
@@ -25,18 +27,32 @@ module.exports = {
         if(Joi.isError(error)){
             throw new APIError("参数错误",error.message);
         }
-        var {muse_ID,pageIndex,pageSize} = value;
-        if(typeof muse_ID == "undefined"){
+        var {muse_ID,exhib_Name,pageIndex,pageSize} = value;
+        if(typeof muse_ID == "undefined" && typeof exhib_Name=="undefined"){
             const get_num_sql = `select count(*) from \`exhibition info table\``;
             var [num_rows] = await Pool.query(get_num_sql);
             const get_sql = `select * from \`exhibition info table\` limit ? offset ?`;
             var [result] = await Pool.query(get_sql,[pageSize,(pageIndex-1)*pageSize]);
         }
-        else{
+        else if (typeof muse_ID != "undefined" && typeof exhib_Name=="undefined"){
             const get_num_sql = `select count(*) from \`exhibition info table\` where muse_ID=?`;
             var [num_rows] = await Pool.query(get_num_sql,[muse_ID]);
             const get_sql = `select * from \`exhibition info table\` where muse_ID=? limit ? offset ?`;
             var [result] = await Pool.query(get_sql,[muse_ID,pageSize,(pageIndex-1)*pageSize]);
+        }
+        else if (typeof muse_ID == "undefined" && typeof exhib_Name!="undefined"){
+            const sql_regexp = getRegexpFromChinese(exhib_Name);
+            const get_num_sql = `select count(*) from \`exhibition info table\` where exhib_Name regexp ?`;
+            var [num_rows] = await Pool.query(get_num_sql,[sql_regexp]);
+            const get_sql = `select * from \`exhibition info table\` where exhib_Name regexp ? limit ? offset ?`;
+            var [result] = await Pool.query(get_sql,[sql_regexp,pageSize,(pageIndex-1)*pageSize]);
+        }
+        else{
+            const sql_regexp = getRegexpFromChinese(exhib_Name);
+            const get_num_sql = `select count(*) from \`exhibition info table\` where muse_ID=? and exhib_Name regexp ?`;
+            var [num_rows] = await Pool.query(get_num_sql,[muse_ID,sql_regexp]);
+            const get_sql = `select * from \`exhibition info table\` where muse_ID=? and exhib_Name regexp ? limit ? offset ?`;
+            var [result] = await Pool.query(get_sql,[muse_ID,sql_regexp,pageSize,(pageIndex-1)*pageSize]);
         }
         num_rows = typeof num_rows=="undefined"?0:Object.values(num_rows[0])[0];
         ctx.rest({
