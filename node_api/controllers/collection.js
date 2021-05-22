@@ -54,10 +54,11 @@ module.exports = {
             const get_sql = `select * from \`collection info table\` where muse_ID=? and col_Name regexp ? limit ? offset ?`;
             var [result] = await Pool.query(get_sql,[muse_ID,sql_regexp,pageSize,(pageIndex-1)*pageSize]);
         }
+        num_rows = typeof num_rows=="undefined"?0:Object.values(num_rows[0])[0];
         ctx.rest({
             code:"success",
             info:{
-                num:Object.values(num_rows[0])[0],
+                num:num_rows,
                 items:result,
             },
         });

@@ -94,10 +94,11 @@ module.exports = {
             // console.log(zeroresult)
             // zeroresult.forEach(e=>console.log(e.muse_ID));
         }
+        num_rows = typeof num_rows=="undefined"?0:Object.values(num_rows[0])[0];
         ctx.rest({
             code: "success",
             info: {
-                num: Object.values(num_rows[0])[0],
+                num: num_rows,
                 // numn:Object.values(zeroresult[0]),
                 items: sortresult,
 
