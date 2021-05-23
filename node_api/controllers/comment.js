@@ -15,8 +15,8 @@ const GET_SCHEME = Joi.object({
 })
 const GET_FROM_REVIEW_SCHEME = Joi.object({
     muse_ID:Joi.number().integer().required(),
-    max_review: Joi.number().integer().min(0).max(5).required(),
-    min_review : Joi.number().integer().min(0).max(5).less(Joi.ref('max_review')).required(),
+    max_review: Joi.number().min(0).max(5).required(),
+    min_review : Joi.number().min(0).max(5).less(Joi.ref('max_review')).required(),
     pageIndex:Joi.number().integer().required(),
     pageSize:Joi.number().integer().required()
 })
