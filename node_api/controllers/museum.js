@@ -46,7 +46,7 @@ const PUT_SCHEME = Joi.object({
 /**
  * 用于模糊搜索，根据前端传来的中文字符串得出正则表达式。
  */
-const getRegexpFromChinese = (museum_name) => museum_name.trim().split("").join("?")+"?";
+const getRegexpFromChinese = (museum_name) => museum_name.trim().split("").join("?");
 
 
 module.exports = {

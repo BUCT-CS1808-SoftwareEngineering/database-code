@@ -58,21 +58,21 @@ module.exports = {
         var {user_Name} = value;
         const get_ifnew_sql = `select count(*) from \`user table\`where user_Name=? `;
         var [num_rows] = await Pool.query(get_ifnew_sql,[user_Name]);
-        
+
         if(Joi.isError(error)){
             throw new APIError("参数错误",error.message);
         }
         if(Object.values(num_rows[0])[0]==0){
-            const query_string = `insert into 
-                            \`user table\` 
+            const query_string = `insert into
+                            \`user table\`
                             set ?`;
-            await Pool.query(query_string,{...value,user_Avatar:"11"});
+            await Pool.query(query_string,{...value,user_Avatar:"/images/defaultAvatar.jpg"});
         }
         else{
             throw new APIError("error","用户名重复");
         }
 
-        
+
 
         ctx.rest({
             code:"success",
@@ -105,7 +105,7 @@ module.exports = {
             info:"success"
         });
 
-        
+
     },
 
     'POST /api/user/Avatar': async (ctx, next) => {
@@ -117,7 +117,7 @@ module.exports = {
         }
         let staticDir = path.join(__dirname, '../static');
         let newFileName = path.join(staticDir, `${ctx.file.path}${path.extname(ctx.file.originalname)}`);
-        fs.renameSync(ctx.file.path, newFileName); 
+        fs.renameSync(ctx.file.path, newFileName);
         newFileName = '/' + `${ctx.file.path}${path.extname(ctx.file.originalname)}`.replace("\\", '/');
         const put_sql = `update \`user table\` set user_Avatar= ? where user_ID=?`;
         await Pool.query(put_sql,[newFileName,user_ID]);
@@ -128,7 +128,7 @@ module.exports = {
             }
         });
 
-        
+
     }
-    
+
 };
