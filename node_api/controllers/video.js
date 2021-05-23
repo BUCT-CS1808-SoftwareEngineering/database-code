@@ -32,7 +32,7 @@ const PUT_SCHEME = Joi.object({
     video_ID: Joi.number().integer().required(),
     video_IfShow: Joi.bool().required(),
 })
-const getRegexpFromChinese = (museum_name) => museum_name.trim().split("").join("?")+"?";
+const getRegexpFromChinese = (museum_name) => museum_name.trim().split("").join("?");
 
 module.exports = {
 
@@ -80,6 +80,11 @@ module.exports = {
             filteredRes.push(obj)
             for (let key in result[i]) {
                 if (['user_Passwd'].indexOf(key) != -1) {
+                    continue;
+                }
+                if (key == 'user_Time') {
+                    let t = new Date(result[0][key]);
+                    obj[key] = `${t.getFullYear()}-${t.getMonth() + 1}-${t.getDate()} ${t.getHours()}:${t.getMinutes()}:${t.getSeconds()}`;
                     continue;
                 }
                 obj[key] = result[i][key];

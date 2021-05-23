@@ -74,7 +74,9 @@ module.exports = {
         });
     },
     'DELETE /api/attention': async (ctx, next) => {
-        var {value,error} = DELETE_SCHEME.validate(ctx.request.body);
+      // 由于Android DELETE不允许携带body，所以使用URL参数
+        var query = Url.parse(ctx.request.url,true,true).query;
+        var {value,error} = DELETE_SCHEME.validate(query);
         if(Joi.isError(error)){
             throw new APIError("参数错误",error.message);
         }

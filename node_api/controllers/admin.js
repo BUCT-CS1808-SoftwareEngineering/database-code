@@ -62,7 +62,7 @@ module.exports = {
         await Pool.query(query_string,{...value});
         }
         else{
-            throw new APIError("出错啦","换个独一无二的昵称吧！");
+            throw new APIError("参数错误","用户名重复");
         }
         
 

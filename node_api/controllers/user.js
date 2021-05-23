@@ -2,6 +2,8 @@ const APIError = require("../rest").APIError;
 const Url = require("url");
 const Joi = require("joi");
 const Pool = require("../config");
+const fs = require('fs');
+const path = require("path")
 
 const GET_SCHEME = Joi.object({
     //  user_ID:Joi.number().integer(),
@@ -25,6 +27,10 @@ const PUT_SCHEME = Joi.object({
     user_Email: Joi.string().email().required()
 });
 
+const POST_Avatar_SCHEME=Joi.object({
+    user_ID:Joi.number().integer().required(),
+    //user_Avatar:Joi.string().required()
+});
 module.exports = {
     'GET /api/user': async (ctx, next) => {
         var query = Url.parse(ctx.request.url, true, true).query;
@@ -52,19 +58,19 @@ module.exports = {
         const { value, error } = POST_SCHEME.validate(ctx.request.body);
         var { user_Name } = value;
         const get_ifnew_sql = `select count(*) from \`user table\`where user_Name=? `;
-        var [num_rows] = await Pool.query(get_ifnew_sql, [user_Name]);
+        var [num_rows] = await Pool.query(get_ifnew_sql,[user_Name]);
 
-        if (Joi.isError(error)) {
-            throw new APIError("参数错误", error.message);
+        if(Joi.isError(error)){
+            throw new APIError("参数错误",error.message);
         }
-        if (Object.values(num_rows[0])[0] == 0) {
-            const query_string = `insert into 
-                            \`user table\` 
+        if(Object.values(num_rows[0])[0]==0){
+            const query_string = `insert into
+                            \`user table\`
                             set ?`;
-            await Pool.query(query_string, { ...value, user_Avatar: "11" });
+            await Pool.query(query_string,{...value,user_Avatar:"/images/defaultAvatar.jpg"});
         }
-        else {
-            throw new APIError("出错啦", "换个独一无二的昵称吧！");
+        else{
+            throw new APIError("error","用户名重复");
         }
 
 
@@ -122,7 +128,29 @@ module.exports = {
         });
 
 
-    }
+    },
 
+    'POST /api/user/Avatar': async (ctx, next) => {
+        var {value,error} = POST_Avatar_SCHEME.validate(ctx.request.body);
+        //console.log(value);
+        var {user_ID}=value;
+        if(Joi.isError(error)){
+            throw new APIError("参数错误",error.message);
+        }
+        let staticDir = path.join(__dirname, '../static');
+        let newFileName = path.join(staticDir, `${ctx.file.path}${path.extname(ctx.file.originalname)}`);
+        fs.renameSync(ctx.file.path, newFileName);
+        newFileName = '/' + `${ctx.file.path}${path.extname(ctx.file.originalname)}`.replace("\\", '/');
+        const put_sql = `update \`user table\` set user_Avatar= ? where user_ID=?`;
+        await Pool.query(put_sql,[newFileName,user_ID]);
+        ctx.rest({
+            code: 'success',
+            info: {
+                'path': newFileName
+            }
+        });
+
+
+    }
 
 };

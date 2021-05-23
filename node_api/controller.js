@@ -15,6 +15,9 @@ function addMapping(router, mapping) {
             if(url.includes(("video"))){
                 router.post(path,multer({dest:'upload'}).single("file"),mapping[url]);
             }
+            else if(url.includes("Avatar")){
+                router.post(path,multer({dest:'mosquito'}).single("file"),mapping[url]);//前端别改命名！！！！
+            }
             else router.post(path, mapping[url]);
             console.log(`register URL mapping: POST ${path}`);
         } else if (url.startsWith('PUT ')) {
