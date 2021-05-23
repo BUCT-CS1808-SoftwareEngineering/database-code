@@ -43,14 +43,14 @@ module.exports = {
         else if (typeof muse_ID == "undefined" && typeof user_ID != "undefined"){
             const get_num_sql = `select count(*) from \`attention table\` where user_ID=?`;
             var [num_rows] = await Pool.query(get_num_sql,[user_ID]);
-            const get_sql = `select * \`attention table\` where user_ID=? limit ? offset ?`;
+            const get_sql = `select * from \`attention table\` where user_ID=? limit ? offset ?`;
             var [result] = await Pool.query(get_sql,[user_ID,pageSize,(pageIndex-1)*pageSize]);
         }
         else{
-            const get_sql = `select * \`attention table\` where user_ID=? and muse_ID=? limit ? offset ?`;
+            const get_sql = `select * from \`attention table\` where user_ID=? and muse_ID=? limit ? offset ?`;
             var [result] = await Pool.query(get_sql,[user_ID,muse_ID,pageSize,(pageIndex-1)*pageSize]);
         }
-        num_rows = typeof num_rows=="undefined"?0:Object.values(num_rows[0])[0];
+        num_rows = num_rows.length==0?0:Object.values(num_rows[0])[0];
         ctx.rest({
             code:"success",
             info:{

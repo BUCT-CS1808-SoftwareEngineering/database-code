@@ -46,7 +46,7 @@ const PUT_SCHEME = Joi.object({
 /**
  * 用于模糊搜索，根据前端传来的中文字符串得出正则表达式。
  */
-const getRegexpFromChinese = (museum_name) => museum_name.trim().split("").join("?")+"?";
+const getRegexpFromChinese = (museum_name) => museum_name.trim().split("").join("?");
 
 
 module.exports = {
@@ -94,7 +94,7 @@ module.exports = {
             // console.log(zeroresult)
             // zeroresult.forEach(e=>console.log(e.muse_ID));
         }
-        num_rows = typeof num_rows=="undefined"?0:Object.values(num_rows[0])[0];
+        num_rows = num_rows.length==0?0:Object.values(num_rows[0])[0];
         ctx.rest({
             code: "success",
             info: {
@@ -173,11 +173,19 @@ module.exports = {
             throw new APIError("参数错误", error.message);
         }
         var { muse_Name, pageIndex, pageSize } = value;
-        const sql_regexp = getRegexpFromChinese(muse_Name);
-        const get_num_sql = `select count(*) from \`museum info table\` where muse_Name regexp ?`;
-        var [num_rows] = await Pool.query(get_num_sql, [sql_regexp]);
-        const get_sql = `select * from \`museum info table\` where muse_Name regexp ? order by muse_VisitedTimes desc limit ? offset ?`;
-        var [result] = await Pool.query(get_sql, [sql_regexp, pageSize, (pageIndex - 1) * pageSize]);
+        if(typeof muse_Name !="undefined"){
+            const sql_regexp = getRegexpFromChinese(muse_Name);
+            const get_num_sql = `select count(*) from \`museum info table\` where muse_Name regexp ?`;
+            var [num_rows] = await Pool.query(get_num_sql, [sql_regexp]);
+            const get_sql = `select * from \`museum info table\` where muse_Name regexp ? order by muse_VisitedTimes desc limit ? offset ?`;
+            var [result] = await Pool.query(get_sql, [sql_regexp, pageSize, (pageIndex - 1) * pageSize]);
+        }
+        else{
+            const get_num_sql = `select count(*) from \`museum info table\``;
+            var [num_rows] = await Pool.query(get_num_sql);
+            const get_sql = `select * from \`museum info table\` order by muse_VisitedTimes desc limit ? offset ?`;
+            var [result] = await Pool.query(get_sql, [pageSize, (pageIndex - 1) * pageSize]);
+        }
         ctx.rest({
             code: "success",
             info: {

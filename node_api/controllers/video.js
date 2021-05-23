@@ -85,7 +85,7 @@ module.exports = {
                 obj[key] = result[i][key];
             }
         }
-        num_rows = typeof num_rows == "undefined" ? 0 : Object.values(num_rows[0])[0];
+        num_rows = num_rows.length==0?0:Object.values(num_rows[0])[0];
         ctx.rest({
             code: "success",
             info: {
