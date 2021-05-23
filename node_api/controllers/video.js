@@ -82,8 +82,8 @@ module.exports = {
                 if (['user_Passwd'].indexOf(key) != -1) {
                     continue;
                 }
-                if (key == 'user_Time') {
-                    let t = new Date(result[0][key]);
+                if (key == 'video_Time') {
+                    let t = new Date(result[i][key]);
                     obj[key] = `${t.getFullYear()}-${t.getMonth() + 1}-${t.getDate()} ${t.getHours()}:${t.getMinutes()}:${t.getSeconds()}`;
                     continue;
                 }
