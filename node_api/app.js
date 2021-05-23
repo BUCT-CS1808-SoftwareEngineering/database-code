@@ -69,6 +69,6 @@ app.use(controller());
 // }).unless({
 //     path: [/^\/users\/login/]  // 自定义哪些目录忽略 jwt 验证
 //   }));
-
-app.listen(3000);
-console.log('app started at port 3000...');
+let PORT = 3000;
+app.listen(PORT);
+console.log(`app started at port ${PORT}...`);

@@ -44,11 +44,11 @@ module.exports = {
         var [num_rows] = await Pool.query(get_num_sql);
         const get_sql = `select * from \`user table\` limit ? offset ?`;
         var [result] = await Pool.query(get_sql, [pageSize, (pageIndex - 1) * pageSize]);
-        num_rows = num_rows.length==0?0:Object.values(num_rows[0])[0];
+        num_rows = (typeof num_rows=="undefined" || num_rows.length===0)?0:Object.values(num_rows[0])[0];
         ctx.rest({
             code: "success",
             info: {
-                num: Object.values(num_rows[0])[0],
+                num: num_rows,
                 items: result,
             },
         });

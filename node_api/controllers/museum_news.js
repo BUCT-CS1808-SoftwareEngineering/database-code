@@ -45,7 +45,7 @@ module.exports = {
             const get_sql = `select * from \`news info table\` where news_ID=? limit ? offset ?`;
             var [result] = await Pool.query(get_sql, [news_ID, pageSize, (pageIndex - 1) * pageSize]);
         }
-        num_rows = num_rows.length==0?0:Object.values(num_rows[0])[0];
+        num_rows = (typeof num_rows=="undefined" || num_rows.length===0)?0:Object.values(num_rows[0])[0];
         ctx.rest({
             code: "success",
             info: {
